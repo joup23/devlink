@@ -2,18 +2,8 @@ import axios from 'axios';
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:9090/api', // 백엔드 주소
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    withCredentials: true  // 쿠키 전송을 위해 필요
 });
 
-// 요청에 토큰 추가 (인증 시)
-apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-
+// 기존 토큰 관련 interceptor 제거
 export default apiClient;
