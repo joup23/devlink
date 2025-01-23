@@ -20,8 +20,7 @@ public class JwtUtils {
     
     @PostConstruct
     public void init() {
-        // 안전한 키 생성
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
     private final int jwtExpirationMs = 86400000; // 24시간 (밀리초)
 

@@ -13,11 +13,12 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await apiClient.post('/auth/login', formData);
-      localStorage.setItem('token', response.data.token); // JWT 저장
-      alert('Login successful!');
+      alert(response.data.message); // 서버에서 보낸 메시지 표시
       navigate('/');
     } catch (error) {
-      alert('Login failed. Please check your credentials.');
+      // 서버에서 보낸 에러 메시지 표시
+      const errorMessage = error.response?.data?.message || '로그인에 실패했습니다.';
+      alert(errorMessage);
     }
   };
 

@@ -1,49 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import apiClient from '../api/axios';
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
+    // 서버에 인증 상태 확인 요청
+    const checkAuth = async () => {
+      try {
+        const response = await apiClient.get('/auth/check');
+        setIsLoggedIn(response.data.authenticated);
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    };
+    
+    checkAuth();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await apiClient.post('/auth/logout');
+      setIsLoggedIn(false);
+    } catch (error) {
+      console.error('로그아웃 실패');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 네비게이션 바 */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-blue-600">DevLink</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              {isLoggedIn ? (
-                <>
-                  <Link to="/mypage" className="text-gray-600 hover:text-gray-900">마이페이지</Link>
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem('token');
-                      setIsLoggedIn(false);
-                    }}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-                  >
-                    로그아웃
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="text-gray-600 hover:text-gray-900">로그인</Link>
-                  <Link to="/register" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                    회원가입
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
       {/* 히어로 섹션 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -57,7 +45,7 @@ const HomePage = () => {
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
             <div className="rounded-md shadow">
-              <Link to="/register" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+              <Link to="/" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
                 시작하기
               </Link>
             </div>
