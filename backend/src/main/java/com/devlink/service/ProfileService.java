@@ -4,6 +4,8 @@ import com.devlink.entity.Profile;
 import com.devlink.entity.User;
 import com.devlink.repository.ProfileRepository;
 import com.devlink.repository.UserRepository;
+import com.devlink.util.security.JwtUtils;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +16,12 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final JwtUtils jwtUtils;
 
-    public ProfileService(ProfileRepository profileRepository, UserRepository userRepository) {
+    public ProfileService(ProfileRepository profileRepository, UserRepository userRepository, JwtUtils jwtUtils) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+        this.jwtUtils = jwtUtils;
     }
 
     // 프로필 작성
