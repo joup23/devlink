@@ -44,8 +44,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         // 로그인 검증 로직...
-        
-        String token = jwtUtils.generateToken(loginRequest.getEmail());
+        String token = authService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
         
         // 쿠키 생성
         Cookie cookie = new Cookie("token", token);
