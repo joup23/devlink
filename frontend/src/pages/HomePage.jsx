@@ -1,37 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import apiClient from '../api/axios';
+import { AuthContext } from '../contexts/AuthContext';
 
 const HomePage = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    // 서버에 인증 상태 확인 요청
-    const checkAuth = async () => {
-      try {
-        const response = await apiClient.get('/auth/check');
-        setIsLoggedIn(response.data.authenticated);
-      } catch (error) {
-        setIsLoggedIn(false);
-      }
-    };
-    
-    checkAuth();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await apiClient.post('/auth/logout');
-      setIsLoggedIn(false);
-    } catch (error) {
-      console.error('로그아웃 실패');
-    }
-  };
+  const { isLoggedIn } = useContext(AuthContext);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
       {/* 히어로 섹션 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

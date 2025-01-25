@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
 
-const Navbar = ({ isLoggedIn, onLogout }) => {
+const Navbar = () => {
+  const { isLoggedIn, logout } = useContext(AuthContext);
   return (
     <nav className="bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,7 +16,7 @@ const Navbar = ({ isLoggedIn, onLogout }) => {
               <>
                 <Link to="/mypage" className="text-gray-600 hover:text-gray-900">마이페이지</Link>
                 <button 
-                  onClick={onLogout}
+                  onClick={logout}
                   className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
                 >
                   로그아웃

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 import apiClient from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -13,7 +15,7 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await apiClient.post('/auth/login', formData);
-      alert(response.data.message); // 서버에서 보낸 메시지 표시
+      login(); // 로그인 성공 시 isLoggedIn 값을 true로 변경
       navigate('/');
     } catch (error) {
       // 서버에서 보낸 에러 메시지 표시
