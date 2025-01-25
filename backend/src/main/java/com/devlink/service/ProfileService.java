@@ -50,4 +50,37 @@ public class ProfileService {
 
         return profileRepository.findByUser(user);
     }
+
+    // 특정 프로필 조회
+    public Profile getProfile(Long profileId) {
+        return profileRepository.findById(profileId)
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+    }
+
+    public Profile updateProfile(Long profileId, String username, String title, String bio, int careerYears, String githubUrl) {
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+        
+        // 프로필 소유자 확인
+        if (!profile.getUser().getEmail().equals(username)) {
+            throw new RuntimeException("프로필을 수정할 권한이 없습니다.");
+        }
+        
+        profile.setTitle(title);
+        profile.setBio(bio);
+        profile.setCareerYears(careerYears);
+        profile.setGithubUrl(githubUrl);
+        
+        return profileRepository.save(profile);
+    }
+
+    // 사용자 이메일로 프로필 조회
+    public Profile getProfileByUsername(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        return profileRepository.findByUser(user)
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+    }
 }

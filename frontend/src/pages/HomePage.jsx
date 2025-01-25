@@ -44,11 +44,19 @@ const HomePage = () => {
             DevLink에서 다른 개발자들과 연결하고, 지식을 공유하고, 함께 성장하세요.
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-            <div className="rounded-md shadow">
-              <Link to="/" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
-                시작하기
-              </Link>
-            </div>
+            {isLoggedIn ? (
+              <div className="rounded-md shadow">
+                <Link to="/mypage" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                  프로필 관리하기
+                </Link>
+              </div>
+            ) : (
+              <div className="rounded-md shadow">
+                <Link to="/register" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                  시작하기
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ package com.devlink.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.devlink.entity.Profile;
 import com.devlink.entity.User;
+import com.devlink.service.ProfileService;
 import com.devlink.service.UserService;
 
 @RestController
@@ -20,9 +23,11 @@ import com.devlink.service.UserService;
 public class UserController {
     
      private final UserService userService;
+     private final ProfileService profileService;
     
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ProfileService profileService) {
         this.userService = userService;
+        this.profileService = profileService;
     }
 
     @PostMapping
@@ -53,4 +58,5 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
 }
