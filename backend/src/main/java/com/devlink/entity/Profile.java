@@ -1,5 +1,7 @@
 package com.devlink.entity;
 
+import java.util.Set;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,4 +32,17 @@ public class Profile {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    // 프로필에 연결된 프로젝트들
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Project> projects; // 프로필에 연결된 프로젝트들
+
+    // 프로필에 연결된 스킬들
+    @ManyToMany
+    @JoinTable(
+            name = "profile_skill",
+            joinColumns = @JoinColumn(name = "profile_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills; // 프로필에 연결된 스킬들
 }
