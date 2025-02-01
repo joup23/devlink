@@ -1,7 +1,6 @@
 package com.devlink.util.security;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.JwtException;
 import java.security.Key;

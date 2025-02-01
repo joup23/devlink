@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.devlink.dto.AuthStatusResponse;
 import com.devlink.dto.LoginRequest;
 import com.devlink.dto.MessageResponse;
+import com.devlink.dto.SignupDto;
 import com.devlink.service.AuthService;
 import com.devlink.util.security.JwtUtils;
 
@@ -32,11 +33,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Map<String, String> body) {
-        String name = body.get("name");
-        String email = body.get("email");
-        String password = body.get("password");
-        String role = body.getOrDefault("role", "USER");
+    public ResponseEntity<String> register(@RequestBody SignupDto request) {
+        String name = request.getName();
+        String email = request.getEmail();
+        String password = request.getPassword();
+        String role = "USER";
         String message = authService.registerUser(name, email, password, role);
         return ResponseEntity.ok(message);
     }

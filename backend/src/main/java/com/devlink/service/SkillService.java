@@ -6,6 +6,9 @@ import com.devlink.repository.ProfileRepository;
 import com.devlink.repository.SkillRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class SkillService {
 
@@ -50,5 +53,17 @@ public class SkillService {
         
         profile.getSkills().remove(skillToRemove);
         return profileRepository.save(profile);
+    }
+
+    public List<String> suggestSkills(String query) {
+        return skillRepository.findByNameContainingIgnoreCase(query)
+            .stream()
+            .map(Skill::getName)
+            .limit(10)
+            .collect(Collectors.toList());
+    }
+
+    public List<Skill> getAllSkillsByOrderByName() {
+        return skillRepository.findAllByOrderByName();
     }
 }

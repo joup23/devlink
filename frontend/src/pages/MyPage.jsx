@@ -18,6 +18,19 @@ const MyPage = () => {
         }
     };
 
+    const handleDeleteProfile = async (profileId) => {
+        if (window.confirm('프로필을 삭제하시겠습니까?')) {
+            try {
+                await apiClient.delete(`/profiles/${profileId}`);
+                alert('프로필이 삭제되었습니다.');
+                fetchMyProfiles();
+            } catch (error) {
+                console.error('프로필 삭제 실패:', error);
+                alert('프로필 삭제에 실패했습니다.');
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto p-4">
@@ -40,12 +53,20 @@ const MyPage = () => {
                                         <h2 className="text-xl font-bold">{profile.title}</h2>
                                         <p className="text-gray-600 mt-2">{profile.bio}</p>
                                     </div>
-                                    <Link 
-                                        to={`/profiles/${profile.profileId}/edit`}
-                                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                                    >
-                                        수정
-                                    </Link>
+                                    <div className="flex gap-2">
+                                        <Link 
+                                            to={`/profiles/${profile.profileId}/edit`}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                        >
+                                            수정
+                                        </Link>
+                                        <button 
+                                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                                            onClick={() => handleDeleteProfile(profile.profileId)}
+                                        >
+                                            삭제
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="mb-4">
@@ -70,7 +91,7 @@ const MyPage = () => {
                                                     key={index} 
                                                     className="bg-gray-100 px-3 py-1 rounded"
                                                 >
-                                                    {skill}
+                                                    {skill.name}
                                                 </span>
                                             ))
                                         ) : (

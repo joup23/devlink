@@ -7,6 +7,8 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import ProfileForm from './pages/ProfileForm';
 import MyPage from './pages/MyPage';
+import SignupPage from './pages/SignupPage';
+import ProfileListPage from './pages/ProfileListPage';
 
 const App = () => {
   return (
@@ -20,6 +22,8 @@ const App = () => {
           <Route path="/profiles/new" element={<ProfileForm />} />
           <Route path="/profiles/:profileId/edit" element={<ProfileForm />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/profiles" element={<ProfileListPage />} />
         </Routes>
       </Router>
     </AuthProvider>
