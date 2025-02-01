@@ -1,12 +1,16 @@
 package com.devlink.controller;
 
+import com.devlink.dto.SkillDto;
 import com.devlink.entity.Profile;
+import com.devlink.entity.Skill;
 import com.devlink.service.SkillService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/skill")
@@ -35,5 +39,20 @@ public class SkillController {
         
         Profile profile = skillService.removeSkillFromProfile(profileId, username, skillName);
         return ResponseEntity.ok(profile);
+    }
+
+    @GetMapping("/suggest")
+    public ResponseEntity<List<String>> suggestSkills(@RequestParam String query) {
+        List<String> suggestions = skillService.suggestSkills(query);
+        return ResponseEntity.ok(suggestions);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SkillDto>> skills() {
+        List<Skill> skills = skillService.getAllSkillsByOrderByName();
+        List<SkillDto> skillDtos = skills.stream()
+            .map(SkillDto::from)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(skillDtos);
     }
 }

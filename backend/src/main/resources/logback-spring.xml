@@ -22,8 +22,25 @@
     <logger name="org.springframework.security" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
-    <!-- 특정 패키지에 대해 DEBUG 레벨 활성화 -->
-    <logger name="com.devlink" level="DEBUG" />
+
+    <!-- Hibernate SQL 로깅 -->
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.hibernate.type.descriptor.sql" level="TRACE" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <!-- 트랜잭션 로깅 -->
+    <logger name="org.springframework.transaction" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <!-- 애플리케이션 로깅 -->
+    <logger name="com.devlink" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
     <!---->
     <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="STDOUT" />

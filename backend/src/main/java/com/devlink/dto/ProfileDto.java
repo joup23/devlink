@@ -1,8 +1,6 @@
 package com.devlink.dto;
 
 import com.devlink.entity.Profile;
-import com.devlink.entity.Project;
-import com.devlink.entity.Skill;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +17,10 @@ public class ProfileDto {
     private String githubUrl;
     private String userEmail;  // 프로필 소유자 이메일
     private List<ProjectDto> projects;
-    private List<String> skills;  // 스킬은 이름만 필요
+    private List<SkillDto> skills;  // 스킬 변환
+    private int likeCount;
+    private int viewCount;
+    private boolean isLiked;  // 현재 사용자의 좋아요 여부
 
     public static ProfileDto from(Profile profile) {
         ProfileDto dto = new ProfileDto();
@@ -35,10 +36,14 @@ public class ProfileDto {
             .map(ProjectDto::from)
             .collect(Collectors.toList()));
         
-        // 스킬 이름만 추출
+        // 스킬 변환
         dto.setSkills(profile.getSkills().stream()
-            .map(Skill::getName)
+            .map(SkillDto::from)
             .collect(Collectors.toList()));
+        
+        // 좋아요, 조회수 정보
+        dto.setLikeCount(profile.getLikeCount());
+        dto.setViewCount(profile.getViewCount());
         
         return dto;
     }

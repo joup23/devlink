@@ -1,6 +1,8 @@
 package com.devlink.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
 
@@ -28,6 +30,9 @@ public class User {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime updatedAt= LocalDateTime.now();
+
+    @ManyToMany(mappedBy = "likedBy")
+    private Set<Profile> likedProfiles = new HashSet<>();
 
     // Getter/Setter (Lombok 사용시 @Data/@Getter/@Setter 등)
     

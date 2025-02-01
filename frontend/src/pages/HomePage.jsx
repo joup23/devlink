@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
+import ProfileListPage from './ProfileListPage';
 
 const HomePage = () => {
   const { isLoggedIn } = useContext(AuthContext);
@@ -27,7 +28,7 @@ const HomePage = () => {
               </div>
             ) : (
               <div className="rounded-md shadow">
-                <Link to="/register" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                <Link to="/signup" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
                   시작하기
                 </Link>
               </div>
@@ -36,33 +37,21 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* 특징 섹션 */}
-      <div className="bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div className="p-6 border rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900">프로필 공유</h3>
-              <p className="mt-2 text-gray-500">
-                자신의 기술 스택과 프로젝트 경험을 공유하세요.
-              </p>
+        {/* 프로필 목록 섹션 */}
+        <div className="container mx-auto px-4 py-8">
+            <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-bold">최근 등록된 프로필</h2>
+                <Link 
+                    to="/profiles" 
+                    className="text-blue-500 hover:text-blue-600"
+                >
+                    전체 보기 →
+                </Link>
             </div>
-            <div className="p-6 border rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900">네트워킹</h3>
-              <p className="mt-2 text-gray-500">
-                같은 관심사를 가진 개발자들과 연결하세요.
-              </p>
-            </div>
-            <div className="p-6 border rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900">지식 공유</h3>
-              <p className="mt-2 text-gray-500">
-                경험과 지식을 공유하고 함께 성장하세요.
-              </p>
-            </div>
-          </div>
+            <ProfileListPage />
         </div>
-      </div>
     </div>
-  );
+    );
 };
 
 export default HomePage; 
