@@ -4,6 +4,7 @@ import com.devlink.entity.Profile;
 import com.devlink.entity.User;
 import com.devlink.repository.ProfileRepository;
 import com.devlink.repository.UserRepository;
+import com.devlink.util.FileUtil;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.io.IOException;
+import java.io.File;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProfileService {
@@ -22,18 +26,22 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final SkillService skillService;
     private final ProjectService projectService;
+    private final FileUtil fileUtil;
 
     public ProfileService(ProfileRepository profileRepository, UserRepository userRepository,
-                         SkillService skillService, ProjectService projectService) {
+                         SkillService skillService, ProjectService projectService, FileUtil fileUtil) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.skillService = skillService;
         this.projectService = projectService;
+        this.fileUtil = fileUtil;
     }
 
     // 프로필 작성
+    @Transactional
     public Profile createProfile(String title, String bio, int careerYears, String githubUrl,
-                               List<Map<String, String>> projects, List<String> skills) {
+                               List<Map<String, String>> projects, List<String> skills, 
+                               MultipartFile image) throws IOException {
         // 인증된 사용자 가져오기
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(username)
@@ -46,6 +54,12 @@ public class ProfileService {
         profile.setCareerYears(careerYears);
         profile.setGithubUrl(githubUrl);
         profile.setUser(user);
+        
+        // 이미지 처리
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = fileUtil.uploadImage(image);  // 이미지 업로드 로직 구현 필요
+            profile.setImageUrl(imageUrl);
+        }
         
         // 프로필 저장
         profile = profileRepository.save(profile);
@@ -92,13 +106,20 @@ public class ProfileService {
     @Transactional
     public Profile updateProfile(Long profileId, String username, String title, String bio, 
                                int careerYears, String githubUrl, List<String> skills,
-                               List<Map<String, String>> projects) {
+                               List<Map<String, String>> projects,
+                               MultipartFile image) throws IOException {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
         
         // 프로필 소유자 확인
         if (!profile.getUser().getEmail().equals(username)) {
             throw new RuntimeException("프로필을 수정할 권한이 없습니다.");
+        }
+
+        // 이미지 업로드
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = fileUtil.uploadImage(image);
+            profile.setImageUrl(imageUrl);
         }
         
         // 기본 정보 업데이트
@@ -208,4 +229,5 @@ public class ProfileService {
         return profile.getLikedBy().stream()
             .anyMatch(user -> user.getEmail().equals(username));
     }
+
 }

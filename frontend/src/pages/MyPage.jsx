@@ -49,6 +49,15 @@ const MyPage = () => {
                         {profiles.map((profile) => (
                             <div key={profile.profileId} className="bg-white shadow rounded-lg p-6">
                                 <div className="flex justify-between items-start mb-4">
+                                    {profile.imageUrl && (
+                                        <div className="mb-4 flex justify-center">
+                                            <img
+                                                src={profile.imageUrl}
+                                                alt="프로필 이미지"
+                                                className="w-24 h-24 object-cover rounded-full"
+                                            />
+                                        </div>
+                                    )}
                                     <div>
                                         <h2 className="text-xl font-bold">{profile.title}</h2>
                                         <p className="text-gray-600 mt-2">{profile.bio}</p>

@@ -21,6 +21,7 @@ public class ProfileDto {
     private int likeCount;
     private int viewCount;
     private boolean isLiked;  // 현재 사용자의 좋아요 여부
+    private String imageUrl;
 
     public static ProfileDto from(Profile profile) {
         ProfileDto dto = new ProfileDto();
@@ -44,6 +45,8 @@ public class ProfileDto {
         // 좋아요, 조회수 정보
         dto.setLikeCount(profile.getLikeCount());
         dto.setViewCount(profile.getViewCount());
+        
+        dto.setImageUrl(profile.getImageUrl());
         
         return dto;
     }

@@ -14,7 +14,8 @@ const ProfileForm = () => {
         careerYears: 0,
         githubUrl: '',
         skills: [],
-        projects: []
+        projects: [],
+        imageUrl: ''
     });
 
     const [newSkill, setNewSkill] = useState('');
@@ -25,6 +26,8 @@ const ProfileForm = () => {
     });
 
     const [selectedSkills, setSelectedSkills] = useState([]);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         if (isEdit) {
@@ -41,28 +44,34 @@ const ProfileForm = () => {
         }
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // 이미지 업로드를 위한 FormData 생성
+            const formData = new FormData();
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+            formData.append('title', profile.title);
+            formData.append('bio', profile.bio);
+            formData.append('careerYears', profile.careerYears);
+            formData.append('githubUrl', profile.githubUrl);
+            formData.append('skills', JSON.stringify(selectedSkills));
+            formData.append('projects', JSON.stringify(profile.projects));
+
             if (isEdit) {
-                await apiClient.put(`/profiles/${profileId}`, {
-                    title: profile.title,
-                    bio: profile.bio,
-                    careerYears: profile.careerYears,
-                    githubUrl: profile.githubUrl,
-                    skills: selectedSkills,
-                    projects: profile.projects
-                });
+                await apiClient.put(`/profiles/${profileId}`, formData);
                 alert('프로필이 수정되었습니다.');
             } else {
-                await apiClient.post('/profiles', {
-                    title: profile.title,
-                    bio: profile.bio,
-                    careerYears: profile.careerYears,
-                    githubUrl: profile.githubUrl,
-                    projects: profile.projects,
-                    skills: selectedSkills
-                });
+                await apiClient.post('/profiles', formData);
                 alert('프로필이 등록되었습니다.');
             }
             navigate('/mypage');
@@ -143,6 +152,28 @@ const ProfileForm = () => {
                 {isEdit ? '프로필 수정' : '프로필 등록'}
             </h1>
             
+            {/* 이미지 업로드 섹션 */}
+            <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                    프로필 이미지
+                </label>
+                <div className="flex items-center space-x-4">
+                    {(imagePreview || profile.imageUrl) && (
+                        <img
+                            src={imagePreview || profile.imageUrl}
+                            alt="프로필 이미지"
+                            className="w-32 h-32 object-cover rounded-full"
+                        />
+                    )}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="border p-2 rounded"
+                    />
+                </div>
+            </div>
+
             {/* 프로필 기본 정보 입력 필드들 */}
             <div className="mb-8">
                 <div className="mb-4">

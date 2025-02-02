@@ -5,10 +5,15 @@ import com.devlink.service.ProfileService;
 import com.devlink.dto.ProfileDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,24 +23,34 @@ import java.util.stream.Collectors;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final ObjectMapper objectMapper;
 
-    public ProfileController(ProfileService profileService) {
+    public ProfileController(ProfileService profileService, ObjectMapper objectMapper) {
         this.profileService = profileService;
+        this.objectMapper = objectMapper;
     }
 
     // 프로필 작성
-    @PostMapping
-    public ResponseEntity<ProfileDto> createProfile(@RequestBody Map<String, Object> body) {
-        String title = (String) body.get("title");
-        String bio = (String) body.get("bio");
-        int careerYears = (int) body.get("careerYears");
-        String githubUrl = (String) body.get("githubUrl");
-        
-        // 프로젝트와 스킬 정보 추출
-        List<Map<String, String>> projects = (List<Map<String, String>>) body.get("projects");
-        List<String> skills = (List<String>) body.get("skills");
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<ProfileDto> createProfile(
+        @RequestPart(value = "image", required = false) MultipartFile image,
+        @RequestParam("title") String title, 
+        @RequestParam("bio") String bio,
+        @RequestParam("careerYears") String careerYears,
+        @RequestParam("githubUrl") String githubUrl,
+        @RequestParam("skills") String skillsJson,
+        @RequestParam("projects") String projectsJson
+    ) throws IOException {
+        // JSON 문자열을 객체로 변환
+        List<String> skills = objectMapper.readValue(skillsJson, new TypeReference<List<String>>() {});
+        List<Map<String, String>> projects = objectMapper.readValue(projectsJson, new TypeReference<List<Map<String, String>>>() {});
 
-        Profile profile = profileService.createProfile(title, bio, careerYears, githubUrl, projects, skills);
+        // 이미지 처리 및 프로필 생성
+        Profile profile = profileService.createProfile(
+            title, bio, Integer.parseInt(careerYears), githubUrl,
+            projects, skills, image
+        );
+        
         return ResponseEntity.ok(ProfileDto.from(profile));
     }
 
@@ -50,22 +65,25 @@ public class ProfileController {
     }
 
     // 프로필 수정
-    @PutMapping("/{profileId}")
+    @PutMapping(value = "/{profileId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ProfileDto> updateProfile(
-            @PathVariable Long profileId,
-            @RequestBody Map<String, Object> body) {
-        // 현재 로그인한 사용자 확인
+        @PathVariable Long profileId,
+        @RequestPart(value = "image", required = false) MultipartFile image,
+        @RequestParam("title") String title,
+        @RequestParam("bio") String bio,
+        @RequestParam("careerYears") String careerYears,
+        @RequestParam("githubUrl") String githubUrl,
+        @RequestParam("skills") String skillsJson,
+        @RequestParam("projects") String projectsJson
+    ) throws IOException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         
-        String title = (String) body.get("title");
-        String bio = (String) body.get("bio");
-        int careerYears = (int) body.get("careerYears");
-        String githubUrl = (String) body.get("githubUrl");
-        List<String> skills = (List<String>) body.get("skills");
-        List<Map<String, String>> projects = (List<Map<String, String>>) body.get("projects");
+        List<String> skills = objectMapper.readValue(skillsJson, new TypeReference<List<String>>() {});
+        List<Map<String, String>> projects = objectMapper.readValue(projectsJson, new TypeReference<List<Map<String, String>>>() {});
 
         Profile updatedProfile = profileService.updateProfile(
-            profileId, username, title, bio, careerYears, githubUrl, skills, projects);
+            profileId, username, title, bio, Integer.parseInt(careerYears), githubUrl, skills, projects, image
+        );
         return ResponseEntity.ok(ProfileDto.from(updatedProfile));
     }
 
