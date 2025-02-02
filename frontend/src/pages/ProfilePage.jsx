@@ -54,6 +54,17 @@ const ProfilePage = () => {
     return (
         <div className="container mx-auto p-4">
             <div className="bg-white rounded-lg shadow-md p-6">
+                {/* 프로필 이미지 */}
+                {profile.imageUrl && (
+                    <div className="mb-6 flex justify-center">
+                        <img
+                            src={profile.imageUrl}
+                            alt="프로필 이미지"
+                            className="w-32 h-32 object-cover rounded-full"
+                        />
+                    </div>
+                )}
+                
                 <div className="flex justify-between items-start mb-6">
                     <h1 className="text-3xl font-bold">{profile.title}</h1>
                     <div className="flex items-center gap-4">

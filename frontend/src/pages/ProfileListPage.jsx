@@ -96,6 +96,17 @@ const ProfileListPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {profiles.map((profile) => (
                     <div key={profile.profileId} className="bg-white rounded-lg shadow-md p-6">
+                        {/* 프로필 이미지 */}
+                        {profile.imageUrl && (
+                            <div className="mb-4 flex justify-center">
+                                <img
+                                    src={profile.imageUrl}
+                                    alt="프로필 이미지"
+                                    className="w-24 h-24 object-cover rounded-full"
+                                />
+                            </div>
+                        )}
+                        
                         <div className="mb-4">
                             <h2 className="text-xl font-bold">{profile.title}</h2>
                             <p className="text-gray-600 mt-2">{profile.bio}</p>

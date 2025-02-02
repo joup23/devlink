@@ -94,4 +94,7 @@ public class Profile {
         this.likedBy.remove(user);
         user.getLikedProfiles().remove(this);
     }
+
+    @Column(name = "image_url")
+    private String imageUrl;  // 이미지 URL 저장
 }
