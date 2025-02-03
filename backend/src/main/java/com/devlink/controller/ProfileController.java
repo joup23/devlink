@@ -1,6 +1,7 @@
 package com.devlink.controller;
 
 import com.devlink.entity.Profile;
+import com.devlink.service.LikeService;
 import com.devlink.service.ProfileService;
 import com.devlink.dto.ProfileDto;
 import org.springframework.data.domain.Page;
@@ -23,10 +24,12 @@ import java.util.stream.Collectors;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final LikeService likeService;
     private final ObjectMapper objectMapper;
 
-    public ProfileController(ProfileService profileService, ObjectMapper objectMapper) {
+    public ProfileController(ProfileService profileService, LikeService likeService, ObjectMapper objectMapper) {
         this.profileService = profileService;
+        this.likeService = likeService;
         this.objectMapper = objectMapper;
     }
 
@@ -139,15 +142,21 @@ public class ProfileController {
     @PostMapping("/{profileId}/like")
     public ResponseEntity<?> toggleLike(@PathVariable Long profileId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        profileService.toggleLike(profileId, username);
+        likeService.toggleLike(profileId, username);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{profileId}/isLiked")
     public ResponseEntity<Boolean> isLikedByUser(@PathVariable Long profileId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean isLiked = profileService.isLikedByUser(profileId, username);
+        boolean isLiked = likeService.isLikedByUser(profileId, username);
         return ResponseEntity.ok(isLiked);
+    }
+
+    @GetMapping("/{profileId}/likes")
+    public ResponseEntity<Long> getLikeCount(@PathVariable Long profileId) {
+        long likeCount = likeService.getLikeCount(profileId);
+        return ResponseEntity.ok(likeCount);
     }
 
 }
