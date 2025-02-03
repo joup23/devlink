@@ -8,11 +8,13 @@ const ProfilePage = () => {
     const navigate = useNavigate();
     const { isLoggedIn } = useContext(AuthContext);
     const [profile, setProfile] = useState(null);
+    const [likeCount, setLikeCount] = useState(0);
     const [isLiked, setIsLiked] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchProfile();
+        fetchLikeCount();
     }, [id]);
 
     const fetchProfile = async () => {
@@ -27,6 +29,15 @@ const ProfilePage = () => {
         } catch (error) {
             console.error('프로필 로딩 실패:', error);
             setLoading(false);
+        }
+    };
+
+    const fetchLikeCount = async () => {
+        try {
+            const response = await apiClient.get(`/profiles/${id}/likes`);
+            setLikeCount(response.data);
+        } catch (error) {
+            console.error('좋아요 개수 로딩 실패:', error);
         }
     };
 
@@ -80,7 +91,7 @@ const ProfilePage = () => {
                             }`}
                         >
                             <span>{isLiked ? '❤️' : '🤍'}</span>
-                            <span>{profile.likeCount}</span>
+                            <span>{likeCount}</span>
                         </button>
                     </div>
                 </div>
