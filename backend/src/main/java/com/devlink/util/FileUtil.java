@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUtil {
 
     public String uploadImage(MultipartFile image) throws IOException {
-        String uploadDir = "D:/workspace-toy/devlink/data/image/";
+        String uploadDir = "D:/toys/devlink/data/image/";
         File directory = new File(uploadDir);
         if (!directory.exists()) {
             directory.mkdirs();

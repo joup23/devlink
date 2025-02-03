@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() // 로그인/회원가입은 인증 없이 허용
                 .requestMatchers(HttpMethod.GET, "/api/profiles/**").permitAll() // GET 요청만 허용
                 .requestMatchers(HttpMethod.GET, "/api/skill/**").permitAll() // GET 요청만 허용
+                .requestMatchers(HttpMethod.GET, "/images/**").permitAll() // GET 요청만 허용
                 .anyRequest().authenticated()           // 그 외 요청은 인증 필요
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // 필터 추가

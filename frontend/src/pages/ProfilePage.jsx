@@ -13,33 +13,32 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchProfile();
-        fetchLikeCount();
-    }, [id]);
-
-    const fetchProfile = async () => {
-        try {
-            const response = await apiClient.get(`/profiles/${id}`);
-            setProfile(response.data);
-            if (isLoggedIn) {
-                const likeResponse = await apiClient.get(`/profiles/${id}/isLiked`);
-                setIsLiked(likeResponse.data);
+        const fetchProfile = async () => {
+            try {
+                // 프로필과 좋아요 상태를 동시에 가져오기
+                const [profileRes, likeCountRes, isLikedRes] = await Promise.all([
+                    apiClient.get(`/profiles/${id}`),
+                    apiClient.get(`/profiles/${id}/likes`),
+                    isLoggedIn ? apiClient.get(`/profiles/${id}/isLiked`) : Promise.resolve({ data: false })
+                ]);
+                
+                // 조회수 증가 API 비동기 호출
+                apiClient.post(`/profiles/${id}/view`).catch(error => {
+                    console.error('조회수 증가 실패:', error);
+                });
+                
+                setProfile(profileRes.data);
+                setLikeCount(likeCountRes.data);
+                setIsLiked(isLikedRes.data);
+                setLoading(false);
+            } catch (error) {
+                console.error('프로필 로딩 실패:', error);
+                setLoading(false);
             }
-            setLoading(false);
-        } catch (error) {
-            console.error('프로필 로딩 실패:', error);
-            setLoading(false);
-        }
-    };
+        };
 
-    const fetchLikeCount = async () => {
-        try {
-            const response = await apiClient.get(`/profiles/${id}/likes`);
-            setLikeCount(response.data);
-        } catch (error) {
-            console.error('좋아요 개수 로딩 실패:', error);
-        }
-    };
+        fetchProfile();
+    }, [id, isLoggedIn]);
 
     const handleLike = async () => {
         if (!isLoggedIn) {
@@ -49,11 +48,9 @@ const ProfilePage = () => {
 
         try {
             await apiClient.post(`/profiles/${id}/like`);
+            // 좋아요 상태와 카운트 즉시 업데이트
             setIsLiked(!isLiked);
-            setProfile(prev => ({
-                ...prev,
-                likeCount: isLiked ? prev.likeCount - 1 : prev.likeCount + 1
-            }));
+            setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
         } catch (error) {
             console.error('좋아요 처리 실패:', error);
         }

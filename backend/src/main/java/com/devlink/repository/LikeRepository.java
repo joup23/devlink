@@ -14,4 +14,5 @@ public interface LikeRepository extends JpaRepository<Like, Integer> {
     Optional<Like> findByProfileAndUser(Profile profile, User user);
     void deleteByProfileAndUser(Profile profile, User user);
     int countByProfile(Profile profile);
+    void deleteByProfile(Profile profile);
 }

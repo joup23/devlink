@@ -93,9 +93,6 @@ public class ProfileController {
     // 특정 프로필 조회
     @GetMapping("/{profileId}")
     public ResponseEntity<ProfileDto> getProfile(@PathVariable Long profileId) {
-        // 조회수 증가
-        profileService.incrementViewCount(profileId);
-        
         Profile profile = profileService.getProfile(profileId);
         return ResponseEntity.ok(ProfileDto.from(profile));
     }
@@ -157,6 +154,13 @@ public class ProfileController {
     public ResponseEntity<Long> getLikeCount(@PathVariable Long profileId) {
         long likeCount = likeService.getLikeCount(profileId);
         return ResponseEntity.ok(likeCount);
+    }
+
+    // 조회수 증가 API
+    @PostMapping("/{profileId}/view")
+    public ResponseEntity<?> incrementViewCount(@PathVariable Long profileId) {
+        profileService.incrementViewCount(profileId);
+        return ResponseEntity.ok().build();
     }
 
 }

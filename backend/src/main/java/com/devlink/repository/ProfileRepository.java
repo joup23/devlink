@@ -36,9 +36,9 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     @Query("UPDATE Profile p SET p.viewCount = p.viewCount + 1 WHERE p.profileId = :profileId")
     void updateViewCount(@Param("profileId") Long profileId);
 
-    @Modifying
-    @Query("UPDATE Profile p SET p.likeCount = p.likeCount + 1 WHERE p.profileId = :profileId")
-    void updateLikeCount(@Param("profileId") Long profileId);
+    // @Modifying
+    // @Query("UPDATE Profile p SET p.likeCount = p.likeCount + 1 WHERE p.profileId = :profileId")
+    // void updateLikeCount(@Param("profileId") Long profileId);
 
     @Query(value = "SELECT DISTINCT p FROM Profile p " +
         "LEFT JOIN FETCH p.user " +
