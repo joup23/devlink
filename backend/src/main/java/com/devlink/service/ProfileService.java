@@ -2,6 +2,7 @@ package com.devlink.service;
 
 import com.devlink.entity.Profile;
 import com.devlink.entity.User;
+import com.devlink.repository.LikeRepository;
 import com.devlink.repository.ProfileRepository;
 import com.devlink.repository.UserRepository;
 import com.devlink.util.FileUtil;
@@ -23,19 +24,19 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
-    private final LikeService likeService;
+    private final LikeRepository likeRepository;
     private final SkillService skillService;
     private final ProjectService projectService;
     private final FileUtil fileUtil;
 
     public ProfileService(ProfileRepository profileRepository, UserRepository userRepository,
-                         SkillService skillService, ProjectService projectService, FileUtil fileUtil, LikeService likeService) {
+                         SkillService skillService, ProjectService projectService, FileUtil fileUtil, LikeRepository likeRepository) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.skillService = skillService;
         this.projectService = projectService;
         this.fileUtil = fileUtil;
-        this.likeService = likeService;
+        this.likeRepository = likeRepository;
     }
 
     // 프로필 작성
@@ -198,7 +199,7 @@ public class ProfileService {
         
         // 연관된 데이터 먼저 삭제
         profile.getSkills().clear();  // 스킬 관계 제거
-        profile.getLikedBy().clear(); // 좋아요 관계 제거
+        likeRepository.deleteByProfile(profile); // 좋아요 관계 제거
         profile.getProjects().clear(); // 프로젝트 관계 제거
         
         profileRepository.delete(profile);
@@ -210,25 +211,25 @@ public class ProfileService {
         profileRepository.updateViewCount(profileId);
     }
 
-    @Transactional
-    public void toggleLike(Long profileId, String username) {
-        Profile profile = getProfile(profileId);
-        User user = userRepository.findByEmail(username)
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    // @Transactional
+    // public void toggleLike(Long profileId, String username) {
+    //     Profile profile = getProfile(profileId);
+    //     User user = userRepository.findByEmail(username)
+    //         .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        if (profile.getLikedBy().contains(user)) {
-            profile.removeLike(user);
-        } else {
-            profile.addLike(user);
-        }
+    //     if (profile.getLikedBy().contains(user)) {
+    //         profile.removeLike(user);
+    //     } else {
+    //         profile.addLike(user);
+    //     }
         
-        profileRepository.updateLikeCount(profileId);
-    }
+    //     profileRepository.updateLikeCount(profileId);
+    // }
 
-    public boolean isLikedByUser(Long profileId, String username) {
-        Profile profile = getProfile(profileId);
-        return profile.getLikedBy().stream()
-            .anyMatch(user -> user.getEmail().equals(username));
-    }
+    // public boolean isLikedByUser(Long profileId, String username) {
+    //     Profile profile = getProfile(profileId);
+    //     return profile.getLikedBy().stream()
+    //         .anyMatch(user -> user.getEmail().equals(username));
+    // }
 
 }

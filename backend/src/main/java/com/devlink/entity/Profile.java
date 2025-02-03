@@ -70,31 +70,12 @@ public class Profile {
     @OrderBy("name ASC")  // 스킬을 이름순으로 정렬
     private Set<Skill> skills = new HashSet<>();
 
-    @Column(name = "like_count")
-    private int likeCount = 0;
+    // @Column(name = "like_count")
+    // private int likeCount = 0;
 
     @Column(nullable = false)
     private int viewCount = 0;
-    
-    @ManyToMany
-    @JoinTable(
-        name = "profile_likes",
-        joinColumns = @JoinColumn(name = "profile_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> likedBy = new HashSet<>();
-
-    // 편의 메서드 추가
-    public void addLike(User user) {
-        this.likedBy.add(user);
-        user.getLikedProfiles().add(this);
-    }
-
-    public void removeLike(User user) {
-        this.likedBy.remove(user);
-        user.getLikedProfiles().remove(this);
-    }
-
+  
     @Column(name = "image_url")
     private String imageUrl;  // 이미지 URL 저장
 }
