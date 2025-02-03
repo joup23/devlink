@@ -18,7 +18,7 @@ public class ProfileDto {
     private String userEmail;  // 프로필 소유자 이메일
     private List<ProjectDto> projects;
     private List<SkillDto> skills;  // 스킬 변환
-    private int likeCount;
+    //private int likeCount; 
     private int viewCount;
     private boolean isLiked;  // 현재 사용자의 좋아요 여부
     private String imageUrl;
@@ -43,7 +43,7 @@ public class ProfileDto {
             .collect(Collectors.toList()));
         
         // 좋아요, 조회수 정보
-        dto.setLikeCount(profile.getLikeCount());
+        //dto.setLikeCount(profile.getLikeCount());
         dto.setViewCount(profile.getViewCount());
         
         dto.setImageUrl(profile.getImageUrl());

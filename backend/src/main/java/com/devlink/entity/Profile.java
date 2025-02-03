@@ -70,7 +70,7 @@ public class Profile {
     @OrderBy("name ASC")  // 스킬을 이름순으로 정렬
     private Set<Skill> skills = new HashSet<>();
 
-    @Column(nullable = false)
+    @Column(name = "like_count")
     private int likeCount = 0;
 
     @Column(nullable = false)

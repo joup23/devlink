@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.io.IOException;
-import java.io.File;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,17 +23,19 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final LikeService likeService;
     private final SkillService skillService;
     private final ProjectService projectService;
     private final FileUtil fileUtil;
 
     public ProfileService(ProfileRepository profileRepository, UserRepository userRepository,
-                         SkillService skillService, ProjectService projectService, FileUtil fileUtil) {
+                         SkillService skillService, ProjectService projectService, FileUtil fileUtil, LikeService likeService) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.skillService = skillService;
         this.projectService = projectService;
         this.fileUtil = fileUtil;
+        this.likeService = likeService;
     }
 
     // 프로필 작성
