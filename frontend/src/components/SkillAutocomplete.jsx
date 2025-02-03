@@ -1,30 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import apiClient from '../api/axios';
+import React, { useRef, useEffect } from 'react';
+import { useSkillSuggestions } from '../hooks/useSkillSuggestions';
 
 const SkillAutocomplete = ({ onSkillSelect, selectedSkills }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [suggestions, setSuggestions] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
+    const {
+        searchTerm,
+        setSearchTerm,
+        suggestions,
+        isOpen,
+        setIsOpen
+    } = useSkillSuggestions();
+    
     const wrapperRef = useRef(null);
 
-    useEffect(() => {
-        // 입력값이 있을 때만 API 호출
-        if (searchTerm.trim()) {
-            const fetchSuggestions = async () => {
-                try {
-                    const response = await apiClient.get(`/skill/suggest?query=${searchTerm}`);
-                    setSuggestions(response.data);
-                } catch (error) {
-                    console.error('스킬 검색 실패:', error);
-                }
-            };
-            fetchSuggestions();
-        } else {
-            setSuggestions([]);
-        }
-    }, [searchTerm]);
-
-    // 외부 클릭 시 드롭다운 닫기
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -44,7 +31,6 @@ const SkillAutocomplete = ({ onSkillSelect, selectedSkills }) => {
     const handleKeyDown = async (e) => {
         if (e.key === 'Enter' && searchTerm.trim()) {
             e.preventDefault();
-            // 직접 입력한 스킬 추가
             handleSelect(searchTerm.trim());
         }
     };
