@@ -60,6 +60,7 @@ public class Profile {
 
     // 프로필에 연결된 프로젝트들
     @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("projectId ASC")  // 프로젝트를 생성 순으로 정렬
     private Set<Project> projects = new HashSet<>();
 
     // 프로필에 연결된 스킬들
