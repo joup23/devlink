@@ -46,7 +46,7 @@ public class ProfileController {
     ) throws IOException {
         // JSON 문자열을 객체로 변환
         List<String> skills = objectMapper.readValue(skillsJson, new TypeReference<List<String>>() {});
-        List<Map<String, String>> projects = objectMapper.readValue(projectsJson, new TypeReference<List<Map<String, String>>>() {});
+        List<Map<String, Object>> projects = objectMapper.readValue(projectsJson, new TypeReference<List<Map<String, Object>>>() {});
 
         // 이미지 처리 및 프로필 생성
         Profile profile = profileService.createProfile(
