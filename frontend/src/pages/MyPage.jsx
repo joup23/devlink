@@ -239,29 +239,35 @@ const MyPage = () => {
 
                                 {/* 프로젝트 섹션 */}
                                 <div>
-                                    <h3 className="text-lg font-bold mb-2">프로젝트</h3>
-                                    <div className="grid gap-4">
-                                        {profile.projects.length > 0 ? (
-                                            profile.projects.map((project) => (
-                                                <div 
-                                                    key={project.projectId} 
-                                                    className="border p-4 rounded"
-                                                >
-                                                    <h4 className="font-bold">{project.title}</h4>
-                                                    <p className="text-gray-600">{project.description}</p>
-                                                    <a 
-                                                        href={project.link} 
-                                                        className="text-blue-500 hover:underline" 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                    >
+                                    <h3 className="font-semibold mb-2">프로젝트</h3>
+                                    <div className="space-y-2">
+                                        {profile.projects.map((project) => (
+                                            <div key={project.projectId} className="border p-4 rounded">
+                                                <h4 className="font-bold">{project.title}</h4>
+                                                <p className="text-gray-600 mb-2">{project.description}</p>
+                                                {/* 프로젝트 스킬 표시 */}
+                                                {project.skills && project.skills.length > 0 && (
+                                                    <div className="mb-2">
+                                                        <p className="text-sm font-medium mb-1">사용 기술:</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {project.skills.map((skill, index) => (
+                                                                <span 
+                                                                    key={index}
+                                                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                                                >
+                                                                    {skill}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {project.link && (
+                                                    <a href={project.link} className="text-blue-500 hover:underline" target="_blank">
                                                         프로젝트 링크
                                                     </a>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-gray-500">등록된 프로젝트가 없습니다.</p>
-                                        )}
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

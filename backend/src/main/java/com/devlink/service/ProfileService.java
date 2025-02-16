@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.io.IOException;
@@ -42,7 +44,7 @@ public class ProfileService {
     // 프로필 작성
     @Transactional
     public Profile createProfile(String title, String bio, int careerYears, String githubUrl,
-                               List<Map<String, String>> projects, List<String> skills, 
+                               List<Map<String, Object>> projects, List<String> skills, 
                                MultipartFile image) throws IOException {
         // 인증된 사용자 가져오기
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -75,12 +77,18 @@ public class ProfileService {
         
         // 프로젝트 추가
         if (projects != null) {
-            for (Map<String, String> project : projects) {
+            for (Map<String, Object> project : projects) {  // String -> Object로 변경
+                @SuppressWarnings("unchecked")
+                List<String> projectSkills = project.get("skills") instanceof List 
+                    ? (List<String>) project.get("skills") 
+                    : null;
+                    
                 projectService.addProjectToProfile(
                     profile.getProfileId(),
-                    project.get("title"),
-                    project.get("description"),
-                    project.get("link")
+                    (String) project.get("title"),
+                    (String) project.get("description"),
+                    (String) project.get("link"),
+                    projectSkills
                 );
             }
         }
@@ -142,11 +150,16 @@ public class ProfileService {
         profile.getProjects().clear();
         if (projects != null) {
             for (Map<String, String> project : projects) {
+                @SuppressWarnings("unchecked")
+                List<String> projectSkills = project.containsKey("skills") 
+                    ? Arrays.asList(project.get("skills").split(","))
+                    : null;
                 projectService.addProjectToProfile(
                     profileId,
                     project.get("title"),
                     project.get("description"),
-                    project.get("link")
+                    project.get("link"),
+                    projectSkills
                 );
             }
         }

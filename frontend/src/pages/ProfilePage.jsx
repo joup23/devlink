@@ -137,7 +137,23 @@ const ProfilePage = () => {
                                 className="border rounded p-4"
                             >
                                 <h3 className="font-bold">{project.title}</h3>
-                                <p className="text-gray-600">{project.description}</p>
+                                <p className="text-gray-600 mb-2">{project.description}</p>
+                                {/* 프로젝트 스킬 표시 */}
+                                {project.skills && project.skills.length > 0 && (
+                                    <div className="mb-2">
+                                        <p className="text-sm font-medium mb-1">사용 기술:</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {project.skills.map((skill, index) => (
+                                                <span 
+                                                    key={index}
+                                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                                >
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 {project.link && (
                                     <a 
                                         href={project.link}

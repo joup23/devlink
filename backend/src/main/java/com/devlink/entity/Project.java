@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "project")
@@ -26,4 +28,12 @@ public class Project {
     @ManyToOne
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile; // 프로젝트가 연결된 프로필
+
+    @ManyToMany
+    @JoinTable(
+        name = "project_skills",
+        joinColumns = @JoinColumn(name = "project_id"),
+        inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills = new HashSet<>();
 }

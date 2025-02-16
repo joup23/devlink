@@ -2,23 +2,30 @@ package com.devlink.service;
 
 import com.devlink.entity.Profile;
 import com.devlink.entity.Project;
+import com.devlink.entity.Skill;
 import com.devlink.repository.ProfileRepository;
 import com.devlink.repository.ProjectRepository;
+import com.devlink.repository.SkillRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProfileRepository profileRepository;
+    private final SkillRepository skillRepository;
 
-    public ProjectService(ProjectRepository projectRepository, ProfileRepository profileRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProfileRepository profileRepository, SkillRepository skillRepository) {
         this.projectRepository = projectRepository;
         this.profileRepository = profileRepository;
+        this.skillRepository = skillRepository;
     }
 
-    // 프로젝트 추가
-    public Project addProjectToProfile(Long profileId, String title, String description, String link) {
+    @Transactional
+    public Project addProjectToProfile(Long profileId, String title, String description, String link, List<String> skillNames) {
         Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
 
@@ -28,10 +35,24 @@ public class ProjectService {
         project.setLink(link);
         project.setProfile(profile);
 
+        // 스킬 추가
+        if (skillNames != null) {
+            for (String skillName : skillNames) {
+                Skill skill = skillRepository.findByName(skillName)
+                    .orElseGet(() -> {
+                        Skill newSkill = new Skill();
+                        newSkill.setName(skillName);
+                        return skillRepository.save(newSkill);
+                    });
+                project.getSkills().add(skill);
+            }
+        }
+
         return projectRepository.save(project);
     }
 
-    public Project updateProject(Long projectId, String username, String title, String description, String link) {
+    @Transactional
+    public Project updateProject(Long projectId, String username, String title, String description, String link, List<String> skillNames) {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
         
@@ -43,6 +64,20 @@ public class ProjectService {
         project.setTitle(title);
         project.setDescription(description);
         project.setLink(link);
+
+        // 스킬 업데이트
+        project.getSkills().clear();
+        if (skillNames != null) {
+            for (String skillName : skillNames) {
+                Skill skill = skillRepository.findByName(skillName)
+                    .orElseGet(() -> {
+                        Skill newSkill = new Skill();
+                        newSkill.setName(skillName);
+                        return skillRepository.save(newSkill);
+                    });
+                project.getSkills().add(skill);
+            }
+        }
         
         return projectRepository.save(project);
     }

@@ -147,6 +147,19 @@ const ProfileListPage = () => {
                                     <div key={project.projectId} className="text-sm">
                                         <p className="font-medium">{project.title}</p>
                                         <p className="text-gray-600">{project.description}</p>
+                                        {/* 프로젝트 스킬 표시 */}
+                                        {project.skills && project.skills.length > 0 && (
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                {project.skills.map((skill, index) => (
+                                                    <span 
+                                                        key={index}
+                                                        className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded"
+                                                    >
+                                                        {skill}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>

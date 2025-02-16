@@ -22,7 +22,8 @@ const ProfileForm = () => {
     const [newProject, setNewProject] = useState({
         title: '',
         description: '',
-        link: ''
+        link: '',
+        skills: []
     });
 
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -121,7 +122,7 @@ const ProfileForm = () => {
             ...prev,
             projects: [...prev.projects, { ...newProject }]
         }));
-        setNewProject({ title: '', description: '', link: '' });
+        setNewProject({ title: '', description: '', link: '', skills: [] });
     };
 
     const handleDeleteProject = (projectId) => {
@@ -254,13 +255,31 @@ const ProfileForm = () => {
                     {profile.projects.map((project) => (
                         <div key={project.id} className="border p-4 rounded">
                             <h3 className="font-bold">{project.title}</h3>
-                            <p className="text-gray-600">{project.description}</p>
-                            <a href={project.link} className="text-blue-500 hover:underline" target="_blank">
-                                프로젝트 링크
-                            </a>
+                            <p className="text-gray-600 mb-2">{project.description}</p>
+                            {/* 프로젝트 스킬 표시 */}
+                            {project.skills && project.skills.length > 0 && (
+                                <div className="mb-2">
+                                    <p className="text-sm font-medium mb-1">사용 기술:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {project.skills.map((skill, index) => (
+                                            <span 
+                                                key={index}
+                                                className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                            >
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {project.link && (
+                                <a href={project.link} className="text-blue-500 hover:underline block mb-2">
+                                    프로젝트 링크
+                                </a>
+                            )}
                             <button
                                 onClick={() => handleDeleteProject(project.id)}
-                                className="mt-2 text-red-500 hover:text-red-700"
+                                className="text-red-500 hover:text-red-700"
                                 type="button"
                             >
                                 삭제
@@ -297,6 +316,20 @@ const ProfileForm = () => {
                             onChange={(e) => setNewProject({...newProject, link: e.target.value})}
                             className="border p-2 w-full rounded"
                             
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-2">프로젝트 스킬</label>
+                        <SkillAutocomplete
+                            onSkillSelect={(skill) => {
+                                setNewProject(prev => ({
+                                    ...prev,
+                                    skills: prev.skills.includes(skill)
+                                        ? prev.skills.filter(s => s !== skill)
+                                        : [...prev.skills, skill]
+                                }));
+                            }}
+                            selectedSkills={newProject.skills}
                         />
                     </div>
                     <button 
