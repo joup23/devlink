@@ -1,5 +1,6 @@
 package com.devlink.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +26,7 @@ public class User {
     private String password;
     private String name;
     private String role;
+    
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -33,6 +35,18 @@ public class User {
 
     @ManyToMany(mappedBy = "likedBy")
     private Set<Profile> likedProfiles = new HashSet<>();
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "education")
+    private String education;
 
     // Getter/Setter (Lombok 사용시 @Data/@Getter/@Setter 등)
     

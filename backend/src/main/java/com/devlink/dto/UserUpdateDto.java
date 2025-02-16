@@ -1,14 +1,12 @@
 package com.devlink.dto;
 
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDate;
 
 @Getter
 @Setter
-public class SignupDto {
-    private String email;
-    private String password;
+public class UserUpdateDto {
     private String name;
     private LocalDate birthDate;
     private String location;

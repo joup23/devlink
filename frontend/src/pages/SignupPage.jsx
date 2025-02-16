@@ -8,7 +8,11 @@ const SignupPage = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        name: ''
+        name: '',
+        birthDate: '',
+        location: '',
+        phone: '',
+        education: ''
     });
     const [error, setError] = useState('');
 
@@ -125,6 +129,77 @@ const SignupPage = () => {
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">
+                                생년월일
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="birthDate"
+                                    name="birthDate"
+                                    type="date"
+                                    required
+                                    value={formData.birthDate}
+                                    onChange={handleChange}
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                                위치
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="location"
+                                    name="location"
+                                    type="text"
+                                    placeholder="예: 서울시 강남구"
+                                    required
+                                    value={formData.location}
+                                    onChange={handleChange}
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                                연락처
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    placeholder="예: 010-1234-5678"
+                                    required
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="education" className="block text-sm font-medium text-gray-700">
+                                학력
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="education"
+                                    name="education"
+                                    type="text"
+                                    placeholder="예: OO대학교 컴퓨터공학과"
+                                    required
+                                    value={formData.education}
+                                    onChange={handleChange}
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                 />
                             </div>
                         </div>
