@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.devlink.entity.User;
 import com.devlink.repository.UserRepository;
 import com.devlink.util.security.JwtUtils;
+import com.devlink.dto.SignupDto;
 
 @Service
 public class AuthService {
@@ -23,17 +24,21 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder(); // 비밀번호 해싱
     }
 
-    public String registerUser(String name, String email, String password, String role) {
-        if (userRepository.findByEmail(email).isPresent()) {
+    public String registerUser(SignupDto signupDto) {
+        if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
 
-        // 새 사용자 생성
         User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password)); // 비밀번호 해싱
-        user.setRole(role);
+        user.setEmail(signupDto.getEmail());
+        user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
+        user.setName(signupDto.getName());
+        user.setBirthDate(signupDto.getBirthDate());
+        user.setLocation(signupDto.getLocation());
+        user.setPhone(signupDto.getPhone());
+        user.setEducation(signupDto.getEducation());
+        user.setRole("USER");
+
         userRepository.save(user);
         return "회원가입이 완료되었습니다.";
     }

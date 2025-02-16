@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.devlink.entity.User;
 import com.devlink.service.UserService;
+import com.devlink.dto.UserUpdateDto;
 
 @RestController
 @RequestMapping("/api/users")
@@ -52,6 +54,20 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.getUserByEmail(username);
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<?> updateUser(@RequestBody UserUpdateDto updateDto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User updatedUser = userService.updateUser(username, updateDto);
+        return ResponseEntity.ok(updatedUser);
     }
 
 }

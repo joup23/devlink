@@ -34,11 +34,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody SignupDto request) {
-        String name = request.getName();
-        String email = request.getEmail();
-        String password = request.getPassword();
-        String role = "USER";
-        String message = authService.registerUser(name, email, password, role);
+        String message = authService.registerUser(request);
         return ResponseEntity.ok(message);
     }
 

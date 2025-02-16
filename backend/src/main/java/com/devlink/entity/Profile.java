@@ -79,4 +79,22 @@ public class Profile {
   
     @Column(name = "image_url")
     private String imageUrl;  // 이미지 URL 저장
+
+    @ManyToMany
+    @JoinTable(
+        name = "profile_likes",
+        joinColumns = @JoinColumn(name = "profile_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> likedBy = new HashSet<>();
+
+    public void addLike(User user) {
+        this.likedBy.add(user);
+        user.getLikedProfiles().add(this);
+    }
+
+    public void removeLike(User user) {
+        this.likedBy.remove(user);
+        user.getLikedProfiles().remove(this);
+    }
 }
