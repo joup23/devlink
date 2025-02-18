@@ -16,12 +16,15 @@ public class ProfileDto {
     private int careerYears;
     private String githubUrl;
     private String userEmail;  // 프로필 소유자 이메일
-    private List<ProjectDto> projects;
+    private List<ProfileProjectDto> projects;
+    private List<ProfileCareerDto> careers;
     private List<SkillDto> skills;  // 스킬 변환
     //private int likeCount; 
     private int viewCount;
     private boolean isLiked;  // 현재 사용자의 좋아요 여부
     private String imageUrl;
+    private List<Long> selectedProjectIds;  // 선택된 프로젝트 ID 리스트
+    private List<Long> selectedCareerIds;   // 선택된 경력 ID 리스트
 
     public static ProfileDto from(Profile profile) {
         ProfileDto dto = new ProfileDto();
@@ -32,11 +35,26 @@ public class ProfileDto {
         dto.setGithubUrl(profile.getGithubUrl());
         dto.setUserEmail(profile.getUser().getEmail());
         
+        // 선택된 프로젝트 ID 리스트 설정
+        dto.setSelectedProjectIds(profile.getProfileProjects().stream()
+            .map(pp -> pp.getProject().getProjectId())
+            .collect(Collectors.toList()));
+
+        // 선택된 경력 ID 리스트 설정
+        dto.setSelectedCareerIds(profile.getProfileCareers().stream()
+            .map(pc -> pc.getCareer().getCareerId())
+            .collect(Collectors.toList()));
+
         // 프로젝트 변환
-        dto.setProjects(profile.getProjects().stream()
-            .map(ProjectDto::from)
+        dto.setProjects(profile.getProfileProjects().stream()
+            .map(ProfileProjectDto::from)
             .collect(Collectors.toList()));
         
+        // 경력 변환
+        dto.setCareers(profile.getProfileCareers().stream()
+            .map(ProfileCareerDto::from)
+            .collect(Collectors.toList()));
+
         // 스킬 변환
         dto.setSkills(profile.getSkills().stream()
             .map(SkillDto::from)

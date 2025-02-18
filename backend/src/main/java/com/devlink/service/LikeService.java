@@ -12,10 +12,8 @@ import com.devlink.repository.LikeRepository;
 import com.devlink.repository.ProfileRepository;
 import com.devlink.repository.UserRepository;
 
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor

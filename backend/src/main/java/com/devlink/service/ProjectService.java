@@ -1,43 +1,60 @@
 package com.devlink.service;
 
-import com.devlink.entity.Profile;
-import com.devlink.entity.Project;
-import com.devlink.entity.Skill;
-import com.devlink.repository.ProfileRepository;
-import com.devlink.repository.ProjectRepository;
-import com.devlink.repository.SkillRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devlink.entity.Profile;
+import com.devlink.entity.Project;
+import com.devlink.entity.User;
+import com.devlink.entity.Skill;
+import com.devlink.repository.ProfileRepository;
+import com.devlink.repository.ProjectRepository;
+import com.devlink.repository.UserRepository;
+import com.devlink.repository.SkillRepository;
+import com.devlink.dto.ProjectDto;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
-
     private final ProjectRepository projectRepository;
-    private final ProfileRepository profileRepository;
+    private final UserRepository userRepository;
     private final SkillRepository skillRepository;
+    private final ProfileRepository profileRepository;
 
-    public ProjectService(ProjectRepository projectRepository, ProfileRepository profileRepository, SkillRepository skillRepository) {
+    public ProjectService(ProjectRepository projectRepository,
+                         UserRepository userRepository,
+                         SkillRepository skillRepository,
+                         ProfileRepository profileRepository) {
         this.projectRepository = projectRepository;
-        this.profileRepository = profileRepository;
+        this.userRepository = userRepository;
         this.skillRepository = skillRepository;
+        this.profileRepository = profileRepository;
+    }
+
+    public List<ProjectDto> getProjectsByProfileId(Long profileId) {
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+        List<Project> projects = projectRepository.findProjectsByProfile(profile);
+        return projects.stream()
+            .map(ProjectDto::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
-    public Project addProjectToProfile(Long profileId, String title, String description, String link, List<String> skillNames) {
-        Profile profile = profileRepository.findById(profileId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+    public ProjectDto createProject(String userEmail, ProjectDto projectDto) {
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
         Project project = new Project();
-        project.setTitle(title);
-        project.setDescription(description);
-        project.setLink(link);
-        project.setProfile(profile);
+        project.setUser(user);
+        project.setTitle(projectDto.getTitle());
+        project.setDescription(projectDto.getDescription());
+        project.setLink(projectDto.getLink());
 
         // 스킬 추가
-        if (skillNames != null) {
-            for (String skillName : skillNames) {
+        if (projectDto.getSkills() != null) {
+            projectDto.getSkills().forEach(skillName -> {
                 Skill skill = skillRepository.findByName(skillName)
                     .orElseGet(() -> {
                         Skill newSkill = new Skill();
@@ -45,52 +62,38 @@ public class ProjectService {
                         return skillRepository.save(newSkill);
                     });
                 project.getSkills().add(skill);
-            }
+            });
         }
 
-        return projectRepository.save(project);
+        return ProjectDto.from(projectRepository.save(project));
+    }
+
+    public List<ProjectDto> getUserProjects(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return projectRepository.findByUser(user)
+            .stream()
+            .map(ProjectDto::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
-    public Project updateProject(Long projectId, String username, String title, String description, String link, List<String> skillNames) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
-        
-        // 프로젝트 소유자 확인
-        if (!project.getProfile().getUser().getEmail().equals(username)) {
-            throw new RuntimeException("프로젝트를 수정할 권한이 없습니다.");
-        }
-        
-        project.setTitle(title);
-        project.setDescription(description);
-        project.setLink(link);
-
-        // 스킬 업데이트
-        project.getSkills().clear();
-        if (skillNames != null) {
-            for (String skillName : skillNames) {
-                Skill skill = skillRepository.findByName(skillName)
-                    .orElseGet(() -> {
-                        Skill newSkill = new Skill();
-                        newSkill.setName(skillName);
-                        return skillRepository.save(newSkill);
-                    });
-                project.getSkills().add(skill);
-            }
-        }
-        
-        return projectRepository.save(project);
+    public void assignProjectToProfile(Long projectId, Long profileId) {
+        // 프로필에 프로젝트 할당 로직
     }
 
-    public void deleteProject(Long projectId, String username) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
-        
-        // 프로젝트 소유자 확인
-        if (!project.getProfile().getUser().getEmail().equals(username)) {
-            throw new RuntimeException("프로젝트를 삭제할 권한이 없습니다.");
-        }
-        
-        projectRepository.delete(project);
+    @Transactional
+    public void removeProjectFromProfile(Long projectId) {
+        // 프로필에서 프로젝트 제거 로직
+    }
+
+    @Transactional
+    public ProjectDto updateProject(Long projectId, ProjectDto projectDto) {
+        // 프로젝트 수정 로직
+        return null; // Placeholder return, actual implementation needed
+    }
+
+    public void deleteProject(Long projectId) {
+        projectRepository.deleteById(projectId);
     }
 }

@@ -14,34 +14,54 @@ const ProfileForm = () => {
         careerYears: 0,
         githubUrl: '',
         skills: [],
-        projects: [],
         imageUrl: ''
-    });
-
-    const [newSkill, setNewSkill] = useState('');
-    const [newProject, setNewProject] = useState({
-        title: '',
-        description: '',
-        link: '',
-        skills: []
     });
 
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
+    // 프로젝트와 경력 상태 관리
+    const [myProjects, setMyProjects] = useState([]);
+    const [selectedProjects, setSelectedProjects] = useState([]);
+    const [myCareers, setMyCareers] = useState([]);
+    const [selectedCareers, setSelectedCareers] = useState([]);
+
     useEffect(() => {
         if (isEdit) {
             fetchProfile();
         }
+        fetchMyProjects();
+        fetchMyCareers();
     }, [profileId]);
 
     const fetchProfile = async () => {
         try {
             const response = await apiClient.get(`/profiles/${profileId}`);
             setProfile(response.data);
+            if (response.data.careers) {
+                setSelectedCareers(response.data.careers.map(career => career.careerId));
+            }
         } catch (error) {
             console.error('프로필 로딩 실패:', error);
+        }
+    };
+
+    const fetchMyProjects = async () => {
+        try {
+            const response = await apiClient.get('/projects/my');
+            setMyProjects(response.data);
+        } catch (error) {
+            console.error('프로젝트 로딩 실패:', error);
+        }
+    };
+
+    const fetchMyCareers = async () => {
+        try {
+            const response = await apiClient.get('/careers/my');
+            setMyCareers(response.data);
+        } catch (error) {
+            console.error('경력 로딩 실패:', error);
         }
     };
 
@@ -58,50 +78,41 @@ const ProfileForm = () => {
         try {
             // 이미지 업로드를 위한 FormData 생성
             const formData = new FormData();
+            
+            const profileData = {
+                ...profile,
+                skills: selectedSkills
+            };
+
             if (imageFile) {
                 formData.append('image', imageFile);
             }
-            formData.append('title', profile.title);
-            formData.append('bio', profile.bio);
-            formData.append('careerYears', profile.careerYears);
-            formData.append('githubUrl', profile.githubUrl);
-            formData.append('skills', JSON.stringify(selectedSkills));
-            formData.append('projects', JSON.stringify(profile.projects));
 
-            if (isEdit) {
-                await apiClient.put(`/profiles/${profileId}`, formData);
-                alert('프로필이 수정되었습니다.');
-            } else {
-                await apiClient.post('/profiles', formData);
-                alert('프로필이 등록되었습니다.');
+            // JSON 데이터를 문자열로 변환하여 추가
+            formData.append('profile', JSON.stringify(profileData));
+            
+            // 선택된 프로젝트와 경력 ID 추가
+            if (selectedProjects.length > 0) {
+                formData.append('projectIds', JSON.stringify(selectedProjects));
             }
+            if (selectedCareers.length > 0) {
+                formData.append('careerIds', JSON.stringify(selectedCareers));
+            }
+
+            const response = await apiClient({
+                method: isEdit ? 'put' : 'post',
+                url: isEdit ? `/profiles/${profileId}` : '/profiles',
+                data: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            alert(isEdit ? '프로필이 수정되었습니다.' : '프로필이 등록되었습니다.');
             navigate('/mypage');
         } catch (error) {
             console.error('프로필 저장 실패:', error);
             alert('프로필 저장에 실패했습니다.');
-        }
-    };
-
-    const handleAddSkill = (e) => {
-        e.preventDefault();
-        if (!newSkill.trim()) return;
-
-        setProfile(prev => ({
-            ...prev,
-            skills: [...prev.skills, { name: newSkill }]
-        }));
-        setNewSkill('');
-    };
-
-    const handleAddSkillToServer = async () => {
-        try {
-            await apiClient.post(`/skill/${profileId}`, {
-                name: newSkill
-            });
-            setNewSkill('');
-            fetchProfile();
-        } catch (error) {
-            console.error('스킬 추가 실패:', error);
         }
     };
 
@@ -116,23 +127,6 @@ const ProfileForm = () => {
         }
     };
 
-    const handleAddProject = (e) => {
-        e.preventDefault();
-        setProfile(prev => ({
-            ...prev,
-            projects: [...prev.projects, { ...newProject }]
-        }));
-        setNewProject({ title: '', description: '', link: '', skills: [] });
-    };
-
-    const handleDeleteProject = (projectId) => {
-        setProfile(prev => ({
-            ...prev,
-            projects: prev.projects.filter(project => project.id !== projectId)
-        }));
-
-    };
-
     const handleSkillSelect = (skill) => {
         setSelectedSkills(prev => 
             prev.includes(skill)
@@ -141,11 +135,21 @@ const ProfileForm = () => {
         );
     };
 
-    useEffect(() => {
-        if (isEdit && profile.skills) {
-            setSelectedSkills(profile.skills.map(skill => skill.name));
-        }
-    }, [profile.skills, isEdit]);
+    const handleProjectSelect = (projectId) => {
+        setSelectedProjects(prev => 
+            prev.includes(projectId)
+                ? prev.filter(id => id !== projectId)
+                : [...prev, projectId]
+        );
+    };
+
+    const handleCareerSelect = (careerId) => {
+        setSelectedCareers(prev => 
+            prev.includes(careerId)
+                ? prev.filter(id => id !== careerId)
+                : [...prev, careerId]
+        );
+    };
 
     return (
         <div className="container mx-auto p-4">
@@ -248,22 +252,28 @@ const ProfileForm = () => {
                 </div>
             </div>
 
-            {/* 프로젝트 섹션  */}
+            {/* 프로젝트 선택 섹션 */}
             <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">프로젝트</h2>
-                <div className="grid gap-4 mb-4">
-                    {profile.projects.map((project) => (
-                        <div key={project.id} className="border p-4 rounded">
-                            <h3 className="font-bold">{project.title}</h3>
-                            <p className="text-gray-600 mb-2">{project.description}</p>
-                            {/* 프로젝트 스킬 표시 */}
-                            {project.skills && project.skills.length > 0 && (
-                                <div className="mb-2">
-                                    <p className="text-sm font-medium mb-1">사용 기술:</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {project.skills.map((skill, index) => (
-                                            <span 
-                                                key={index}
+                <h2 className="text-xl font-bold mb-4">프로젝트 선택</h2>
+                <div className="grid gap-4">
+                    {myProjects.map((project) => (
+                        <div 
+                            key={project.projectId} 
+                            className={`border rounded-lg p-4 cursor-pointer ${
+                                selectedProjects.includes(project.projectId) 
+                                    ? 'border-blue-500 bg-blue-50' 
+                                    : 'hover:border-gray-400'
+                            }`}
+                            onClick={() => handleProjectSelect(project.projectId)}
+                        >
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-lg font-semibold">{project.title}</h3>
+                                    <p className="text-gray-600">{project.description}</p>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {project.skills.map((skill, i) => (
+                                            <span
+                                                key={i}
                                                 className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
                                             >
                                                 {skill}
@@ -271,85 +281,83 @@ const ProfileForm = () => {
                                         ))}
                                     </div>
                                 </div>
-                            )}
-                            {project.link && (
-                                <a href={project.link} className="text-blue-500 hover:underline block mb-2">
-                                    프로젝트 링크
-                                </a>
-                            )}
-                            <button
-                                onClick={() => handleDeleteProject(project.id)}
-                                className="text-red-500 hover:text-red-700"
-                                type="button"
-                            >
-                                삭제
-                            </button>
+                                <input 
+                                    type="checkbox"
+                                    checked={selectedProjects.includes(project.projectId)}
+                                    onChange={() => {}}
+                                    className="h-5 w-5 text-blue-600"
+                                />
+                            </div>
                         </div>
                     ))}
                 </div>
-                <form onSubmit={handleAddProject} className="border p-4 rounded">
-                    <div className="mb-4">
-                        <label className="block mb-2">프로젝트 제목</label>
-                        <input
-                            type="text"
-                            value={newProject.title}
-                            onChange={(e) => setNewProject({...newProject, title: e.target.value})}
-                            className="border p-2 w-full rounded"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-2">설명</label>
-                        <textarea
-                            value={newProject.description}
-                            onChange={(e) => setNewProject({...newProject, description: e.target.value})}
-                            className="border p-2 w-full rounded"
-                            rows="3"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-2">프로젝트 링크</label>
-                        <input
-                            type="text"
-                            value={newProject.link}
-                            onChange={(e) => setNewProject({...newProject, link: e.target.value})}
-                            className="border p-2 w-full rounded"
-                            
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-2">프로젝트 스킬</label>
-                        <SkillAutocomplete
-                            onSkillSelect={(skill) => {
-                                setNewProject(prev => ({
-                                    ...prev,
-                                    skills: prev.skills.includes(skill)
-                                        ? prev.skills.filter(s => s !== skill)
-                                        : [...prev.skills, skill]
-                                }));
-                            }}
-                            selectedSkills={newProject.skills}
-                        />
-                    </div>
-                    <button 
-                        type="submit" 
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    >
-                        프로젝트 추가
-                    </button>
-                </form>
+            </div>
+
+            {/* 경력 선택 섹션 */}
+            <div className="mb-8">
+                <h2 className="text-xl font-bold mb-4">경력 선택</h2>
+                <div className="grid gap-4">
+                    {myCareers.map((career) => (
+                        <div 
+                            key={career.careerId} 
+                            className={`border rounded-lg p-4 cursor-pointer ${
+                                selectedCareers.includes(career.careerId) 
+                                    ? 'border-blue-500 bg-blue-50' 
+                                    : 'hover:border-gray-400'
+                            }`}
+                            onClick={() => handleCareerSelect(career.careerId)}
+                        >
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-lg font-semibold">{career.companyName}</h3>
+                                    <p className="text-gray-600">
+                                        {career.department} - {career.position}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        {new Date(career.startDate).toLocaleDateString()} ~ 
+                                        {career.endDate ? new Date(career.endDate).toLocaleDateString() : '현재'}
+                                    </p>
+                                </div>
+                                <input 
+                                    type="checkbox"
+                                    checked={selectedCareers.includes(career.careerId)}
+                                    onChange={() => {}}
+                                    className="h-5 w-5 text-blue-600"
+                                />
+                            </div>
+
+                            {/* 프로젝트 목록 */}
+                            <div className="mt-4 space-y-2">
+                                {career.projects.map((project, index) => (
+                                    <div key={index} className="bg-gray-50 p-3 rounded">
+                                        <h4 className="font-semibold">{project.projectName}</h4>
+                                        <p className="text-sm text-gray-600">{project.description}</p>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {project.skills.map((skill, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                                >
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* 최종 제출 버튼 */}
-            <form onSubmit={handleSubmit} className="mt-8">
-                <button 
-                    type="submit" 
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
-                >
-                    {isEdit ? '수정 완료' : '프로필 등록'}
-                </button>
-            </form>
+            <button 
+                type="submit" 
+                onClick={handleSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+            >
+                {isEdit ? '수정 완료' : '프로필 등록'}
+            </button>
         </div>
     );
 };

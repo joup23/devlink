@@ -1,55 +1,66 @@
 package com.devlink.controller;
 
-import com.devlink.entity.Project;
-import com.devlink.service.ProjectService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.devlink.service.ProjectService;
+import com.devlink.dto.ProjectDto;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/api/project")
+@RequestMapping("/api/projects")
 public class ProjectController {
-
     private final ProjectService projectService;
 
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
 
-    @PostMapping("/{profileId}")
-    public ResponseEntity<Project> addProject(@PathVariable Long profileId, @RequestBody Map<String, Object> body) {
-        String title = (String) body.get("title");
-        String description = (String) body.get("description");
-        String link = (String) body.get("link");
-        @SuppressWarnings("unchecked")
-        List<String> skills = (List<String>) body.get("skills");
-
-        Project project = projectService.addProjectToProfile(profileId, title, description, link, skills);
-        return ResponseEntity.ok(project);
+    @PostMapping
+    public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        ProjectDto created = projectService.createProject(userEmail, projectDto);
+        return ResponseEntity.ok(created);
     }
 
-    // 프로젝트 수정
+    @GetMapping("/my")
+    public ResponseEntity<List<ProjectDto>> getMyProjects() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<ProjectDto> projects = projectService.getUserProjects(userEmail);
+        return ResponseEntity.ok(projects);
+    }
+
     @PutMapping("/{projectId}")
-    public ResponseEntity<Project> updateProject(@PathVariable Long projectId, @RequestBody Map<String, Object> body) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String title = (String) body.get("title");
-        String description = (String) body.get("description");
-        String link = (String) body.get("link");
-        @SuppressWarnings("unchecked")
-        List<String> skills = (List<String>) body.get("skills");
-
-        Project project = projectService.updateProject(projectId, username, title, description, link, skills);
-        return ResponseEntity.ok(project);
+    public ResponseEntity<ProjectDto> updateProject(
+            @PathVariable Long projectId,
+            @RequestBody ProjectDto projectDto) {
+        ProjectDto updated = projectService.updateProject(projectId, projectDto);
+        return ResponseEntity.ok(updated);
     }
 
-    // 프로젝트 삭제
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<?> deleteProject(@PathVariable Long projectId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        projectService.deleteProject(projectId, username);
+    public ResponseEntity<Void> deleteProject(@PathVariable Long projectId) {
+        projectService.deleteProject(projectId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{projectId}/assign/{profileId}")
+    public ResponseEntity<Void> assignToProfile(
+            @PathVariable Long projectId,
+            @PathVariable Long profileId) {
+        projectService.assignProjectToProfile(projectId, profileId);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{projectId}/remove-from-profile")
+    public ResponseEntity<Void> removeFromProfile(@PathVariable Long projectId) {
+        projectService.removeProjectFromProfile(projectId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{profileId}")
+    public ResponseEntity<List<ProjectDto>> getProjectsByProfileId(@PathVariable Long profileId) {
+        List<ProjectDto> projectDtos = projectService.getProjectsByProfileId(profileId);
+        return ResponseEntity.ok(projectDtos);
     }
 }

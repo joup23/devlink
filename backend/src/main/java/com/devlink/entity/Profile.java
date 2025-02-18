@@ -2,6 +2,8 @@ package com.devlink.entity;
 
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -11,9 +13,11 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.Data;
 
 @Entity
 @Table(name = "profile")
+@Data
 @Getter
 @Setter
 @NoArgsConstructor
@@ -54,21 +58,25 @@ public class Profile {
     }
 
     // 사용자와 연결 (Many-to-One)
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    // 프로필에 연결된 프로젝트들
-    @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("projectId ASC")  // 프로젝트를 생성 순으로 정렬
-    private Set<Project> projects = new HashSet<>();
+    // 프로필-프로젝트 관계
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProfileProject> profileProjects = new ArrayList<>();
 
-    // 프로필에 연결된 스킬들
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "profile_skill", 
-        joinColumns = @JoinColumn(name = "profile_id"), 
-        inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    @OrderBy("name ASC")  // 스킬을 이름순으로 정렬
+    // 프로필-경력 관계
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProfileCareer> profileCareers = new ArrayList<>();
+
+    // 프로필-스킬 관계
+    @ManyToMany
+    @JoinTable(
+        name = "profile_skills",
+        joinColumns = @JoinColumn(name = "profile_id"),
+        inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
     private Set<Skill> skills = new HashSet<>();
 
     // @Column(name = "like_count")
