@@ -9,6 +9,8 @@ import ProfileForm from './pages/ProfileForm';
 import MyPage from './pages/MyPage';
 import SignupPage from './pages/SignupPage';
 import ProfileListPage from './pages/ProfileListPage';
+import CareerForm from './pages/CareerForm';
+import ProjectForm from './pages/ProjectForm';
 
 const App = () => {
   return (
@@ -24,6 +26,10 @@ const App = () => {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/profiles" element={<ProfileListPage />} />
+          <Route path="/careers/new" element={<CareerForm />} />
+          <Route path="/careers/:careerId/edit" element={<CareerForm />} />
+          <Route path="/projects/new" element={<ProjectForm />} />
+          <Route path="/projects/:projectId/edit" element={<ProjectForm />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -13,10 +13,30 @@ const MyPage = () => {
         phone: '',
         education: ''
     });
+    const [careers, setCareers] = useState([]);
+    const [newCareer, setNewCareer] = useState({
+        companyName: '',
+        department: '',
+        position: '',
+        startDate: '',
+        endDate: '',
+        projects: []
+    });
+    const [newProject, setNewProject] = useState({
+        projectName: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        skills: []
+    });
+    const [projects, setProjects] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchProfiles();
         fetchUserInfo();
+        fetchCareers();
+        fetchProjects();
     }, []);
 
     const fetchProfiles = async () => {
@@ -44,6 +64,24 @@ const MyPage = () => {
         }
     };
 
+    const fetchCareers = async () => {
+        try {
+            const response = await apiClient.get('/careers/my');
+            setCareers(response.data);
+        } catch (error) {
+            console.error('경력 로딩 실패:', error);
+        }
+    };
+
+    const fetchProjects = async () => {
+        try {
+            const response = await apiClient.get('/projects/my');
+            setProjects(response.data);
+        } catch (error) {
+            console.error('프로젝트 로딩 실패:', error);
+        }
+    };
+
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -66,6 +104,65 @@ const MyPage = () => {
             } catch (error) {
                 console.error('프로필 삭제 실패:', error);
                 alert('프로필 삭제에 실패했습니다.');
+            }
+        }
+    };
+
+    const handleAddCareer = async (e) => {
+        e.preventDefault();
+        try {
+            await apiClient.post('/api/careers', newCareer);
+            fetchCareers();
+            setNewCareer({
+                companyName: '',
+                department: '',
+                position: '',
+                startDate: '',
+                endDate: '',
+                projects: []
+            });
+        } catch (error) {
+            console.error('경력 추가 실패:', error);
+        }
+    };
+
+    const handleAddProject = (e) => {
+        e.preventDefault();
+        setNewCareer(prev => ({
+            ...prev,
+            projects: [...prev.projects, newProject]
+        }));
+        setNewProject({
+            projectName: '',
+            description: '',
+            startDate: '',
+            endDate: '',
+            skills: []
+        });
+    };
+
+    const handleDeleteCareer = async (careerId) => {
+        if (window.confirm('경력을 삭제하시겠습니까?')) {
+            try {
+                await apiClient.delete(`/api/careers/${careerId}`);
+                alert('경력이 삭제되었습니다.');
+                fetchCareers();
+            } catch (error) {
+                console.error('경력 삭제 실패:', error);
+                alert('경력 삭제에 실패했습니다.');
+            }
+        }
+    };
+
+    const handleDeleteProject = async (projectId) => {
+        if (window.confirm('프로젝트를 삭제하시겠습니까?')) {
+            try {
+                await apiClient.delete(`/projects/${projectId}`);
+                alert('프로젝트가 삭제되었습니다.');
+                fetchProjects();
+            } catch (error) {
+                console.error('프로젝트 삭제 실패:', error);
+                alert('프로젝트 삭제에 실패했습니다.');
             }
         }
     };
@@ -172,118 +269,185 @@ const MyPage = () => {
                     )}
                 </div>
 
-                {profiles.length > 0 ? (
-                    <div className="grid gap-6">
+                {/* 프로필 섹션 */}
+                <div className="bg-white rounded-lg shadow p-6 mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold">프로필</h2>
+                        <Link
+                            to="/profiles/new"
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                            프로필 추가
+                        </Link>
+                    </div>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {profiles.map((profile) => (
-                            <div key={profile.profileId} className="bg-white shadow rounded-lg p-6">
-                                <div className="flex justify-between items-start mb-4">
-                                    {profile.imageUrl && (
-                                        <div className="mb-4 flex justify-center">
+                            <div key={profile.profileId} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center space-x-3">
+                                        {profile.imageUrl && (
                                             <img
                                                 src={profile.imageUrl}
                                                 alt="프로필 이미지"
-                                                className="w-24 h-24 object-cover rounded-full"
+                                                className="w-16 h-16 rounded-full object-cover"
                                             />
+                                        )}
+                                        <div>
+                                            <h3 className="font-semibold text-lg">{profile.title}</h3>
+                                            <p className="text-gray-600 text-sm">경력 {profile.careerYears}년</p>
                                         </div>
-                                    )}
-                                    <div>
-                                        <h2 className="text-xl font-bold">{profile.title}</h2>
-                                        <p className="text-gray-600 mt-2">{profile.bio}</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Link 
+                                        <button
+                                            onClick={() => navigate(`/profile/${profile.profileId}`)}
+                                            className="text-blue-500 hover:text-blue-700"
+                                        >
+                                            보기
+                                        </button>
+                                        <Link
                                             to={`/profiles/${profile.profileId}/edit`}
-                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                            className="text-blue-500 hover:text-blue-700"
                                         >
                                             수정
                                         </Link>
-                                        <button 
-                                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                                            onClick={() => handleDeleteProfile(profile.profileId)}
+                                    </div>
+                                </div>
+                                <div className="mt-3">
+                                    <p className="text-gray-600 text-sm line-clamp-2">{profile.bio}</p>
+                                </div>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {profile.skills.slice(0, 5).map((skill, index) => (
+                                        <span
+                                            key={index}
+                                            className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                        >
+                                            {skill.name}
+                                        </span>
+                                    ))}
+                                    {profile.skills.length > 5 && (
+                                        <span className="text-gray-500 text-xs">
+                                            +{profile.skills.length - 5}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="mt-3 text-sm text-gray-500">
+                                    <div>조회수: {profile.viewCount}</div>
+                                    <div>좋아요: {profile.likeCount}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* 경력 관리 섹션 */}
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-2xl font-bold">경력 관리</h2>
+                        <Link 
+                            to="/careers/new"
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                            경력 추가
+                        </Link>
+                    </div>
+
+                    <div className="space-y-4">
+                        {careers.map((career) => (
+                            <div key={career.careerId} className="border rounded-lg p-4">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-xl font-bold">{career.companyName}</h3>
+                                        <p className="text-gray-600">
+                                            {career.department} - {career.position}
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            {new Date(career.startDate).toLocaleDateString()} ~ 
+                                            {career.endDate ? new Date(career.endDate).toLocaleDateString() : '현재'}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Link
+                                            to={`/careers/${career.careerId}/edit`}
+                                            className="text-blue-500 hover:text-blue-700"
+                                        >
+                                            수정
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDeleteCareer(career.careerId)}
+                                            className="text-red-500 hover:text-red-700"
                                         >
                                             삭제
                                         </button>
                                     </div>
                                 </div>
-
-                                <div className="mb-4">
-                                    <p className="mb-2">경력: {profile.careerYears}년</p>
-                                    <a 
-                                        href={profile.githubUrl} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        className="text-blue-500 hover:underline"
-                                    >
-                                        GitHub
-                                    </a>
+                                <div className="mt-2">
+                                    <p className="text-sm text-gray-600">
+                                        프로젝트: {career.projects.length}개
+                                    </p>
                                 </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-                                {/* 스킬 섹션 */}
-                                <div className="mb-4">
-                                    <h3 className="text-lg font-bold mb-2">보유 스킬</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {profile.skills.length > 0 ? (
-                                            profile.skills.map((skill, index) => (
-                                                <span 
-                                                    key={index} 
-                                                    className="bg-gray-100 px-3 py-1 rounded"
-                                                >
-                                                    {skill.name}
-                                                </span>
-                                            ))
-                                        ) : (
-                                            <p className="text-gray-500">등록된 스킬이 없습니다.</p>
+                {/* 프로젝트 섹션 */}
+                <div className="bg-white rounded-lg shadow p-6 mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold">프로젝트</h2>
+                        <Link
+                            to="/projects/new"
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                            프로젝트 추가
+                        </Link>
+                    </div>
+                    <div className="grid gap-4">
+                        {projects.map((project) => (
+                            <div key={project.projectId} className="border rounded-lg p-4">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-lg font-semibold">{project.title}</h3>
+                                        <p className="text-gray-600">{project.description}</p>
+                                        {project.link && (
+                                            <a
+                                                href={project.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-500 hover:text-blue-700"
+                                            >
+                                                프로젝트 링크
+                                            </a>
                                         )}
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {project.skills.map((skill, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                                >
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-
-                                {/* 프로젝트 섹션 */}
-                                <div>
-                                    <h3 className="font-semibold mb-2">프로젝트</h3>
-                                    <div className="space-y-2">
-                                        {profile.projects.map((project) => (
-                                            <div key={project.projectId} className="border p-4 rounded">
-                                                <h4 className="font-bold">{project.title}</h4>
-                                                <p className="text-gray-600 mb-2">{project.description}</p>
-                                                {/* 프로젝트 스킬 표시 */}
-                                                {project.skills && project.skills.length > 0 && (
-                                                    <div className="mb-2">
-                                                        <p className="text-sm font-medium mb-1">사용 기술:</p>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {project.skills.map((skill, index) => (
-                                                                <span 
-                                                                    key={index}
-                                                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                                                                >
-                                                                    {skill}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {project.link && (
-                                                    <a href={project.link} className="text-blue-500 hover:underline" target="_blank">
-                                                        프로젝트 링크
-                                                    </a>
-                                                )}
-                                            </div>
-                                        ))}
+                                    <div className="flex gap-2">
+                                        <Link
+                                            to={`/projects/${project.projectId}/edit`}
+                                            className="text-blue-500 hover:text-blue-700"
+                                        >
+                                            수정
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDeleteProject(project.projectId)}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            삭제
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
-                ) : (
-                    <div className="text-center py-8">
-                        <p className="mb-4">아직 프로필이 없습니다.</p>
-                        <Link 
-                            to="/profiles/new"
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                        >
-                            프로필 생성하기
-                        </Link>
-                    </div>
-                )}
+                </div>
             </div>
         </div>
     );

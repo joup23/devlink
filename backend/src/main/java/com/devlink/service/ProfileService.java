@@ -1,102 +1,164 @@
 package com.devlink.service;
 
+import com.devlink.entity.Career;
 import com.devlink.entity.Profile;
+import com.devlink.entity.Project;
+import com.devlink.entity.Skill;
 import com.devlink.entity.User;
+import com.devlink.entity.ProfileProject;
+import com.devlink.entity.ProfileCareer;
+import com.devlink.repository.CareerRepository;
 import com.devlink.repository.LikeRepository;
 import com.devlink.repository.ProfileRepository;
+import com.devlink.repository.ProjectRepository;
 import com.devlink.repository.UserRepository;
+import com.devlink.repository.SkillRepository;
 import com.devlink.util.FileUtil;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.io.IOException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
-    private final LikeRepository likeRepository;
-    private final SkillService skillService;
-    private final ProjectService projectService;
+    private final SkillRepository skillRepository;
     private final FileUtil fileUtil;
+    private final LikeRepository likeRepository;
+    private final ProjectRepository projectRepository;
+    private final CareerRepository careerRepository;
+
 
     public ProfileService(ProfileRepository profileRepository, UserRepository userRepository,
-                         SkillService skillService, ProjectService projectService, FileUtil fileUtil, LikeRepository likeRepository) {
+                         SkillRepository skillRepository, FileUtil fileUtil, LikeRepository likeRepository,
+                         ProjectRepository projectRepository, CareerRepository careerRepository) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
-        this.skillService = skillService;
-        this.projectService = projectService;
+        this.skillRepository = skillRepository;
         this.fileUtil = fileUtil;
         this.likeRepository = likeRepository;
+        this.projectRepository = projectRepository;
+        this.careerRepository = careerRepository;
     }
 
     // 프로필 작성
     @Transactional
-    public Profile createProfile(String title, String bio, int careerYears, String githubUrl,
-                               List<Map<String, Object>> projects, List<String> skills, 
-                               MultipartFile image) throws IOException {
-        // 인증된 사용자 가져오기
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(username)
+    public Profile createProfile(String userEmail, MultipartFile imageFile, String profileJson, String careerIds, String projectIds) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode profileNode = mapper.readTree(profileJson);
+            
+            Profile profile = new Profile();
+            User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+            profile.setUser(user);
+            
+            // 기본 프로필 정보 설정
+            profile.setTitle(profileNode.get("title").asText());
+            profile.setBio(profileNode.get("bio").asText());
+            profile.setCareerYears(profileNode.get("careerYears").asInt());
+            profile.setGithubUrl(profileNode.get("githubUrl").asText());
+            
+            // 이미지 처리
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrl = fileUtil.uploadImage(imageFile);
+                profile.setImageUrl(imageUrl);
+            }
 
-        // 프로필 생성
-        Profile profile = new Profile();
-        profile.setTitle(title);
-        profile.setBio(bio);
-        profile.setCareerYears(careerYears);
-        profile.setGithubUrl(githubUrl);
-        profile.setUser(user);
-        
-        // 이미지 처리
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = fileUtil.uploadImage(image);  // 이미지 업로드 로직 구현 필요
-            profile.setImageUrl(imageUrl);
-        }
-        
-        // 프로필 저장
-        profile = profileRepository.save(profile);
-        
-        // 스킬 추가
-        if (skills != null) {
-            for (String skillName : skills) {
-                skillService.addSkillToProfile(profile.getProfileId(), skillName);
+            // 스킬 처리
+            JsonNode skillsNode = profileNode.get("skills");
+            if (skillsNode != null && skillsNode.isArray()) {
+                skillsNode.forEach(skillNode -> {
+                    String skillName = skillNode.asText();
+                    Skill skill = skillRepository.findByName(skillName)
+                        .orElseGet(() -> {
+                            Skill newSkill = new Skill();
+                            newSkill.setName(skillName);
+                            return skillRepository.save(newSkill);
+                        });
+                    profile.getSkills().add(skill);
+                });
             }
-        }
-        
-        // 프로젝트 추가
-        if (projects != null) {
-            for (Map<String, Object> project : projects) {  // String -> Object로 변경
-                @SuppressWarnings("unchecked")
-                List<String> projectSkills = project.get("skills") instanceof List 
-                    ? (List<String>) project.get("skills") 
-                    : null;
-                    
-                projectService.addProjectToProfile(
-                    profile.getProfileId(),
-                    (String) project.get("title"),
-                    (String) project.get("description"),
-                    (String) project.get("link"),
-                    projectSkills
-                );
+
+            // 프로필 저장
+            Profile savedProfile = profileRepository.save(profile);
+
+            // 프로젝트 연결
+            if (projectIds != null && !projectIds.isEmpty()) {
+                List<Long> projectIdList = mapper.readValue(projectIds, 
+                    mapper.getTypeFactory().constructCollectionType(List.class, Long.class));
+                
+                projectIdList.forEach(projectId -> {
+                    Project project = projectRepository.findById(projectId)
+                        .orElseThrow(() -> new RuntimeException("Project not found: " + projectId));
+                    if (!project.getUser().equals(user)) {
+                        throw new RuntimeException("Project does not belong to user");
+                    }
+                    ProfileProject profileProject = new ProfileProject();
+                    profileProject.setProfile(savedProfile);
+                    profileProject.setProject(project);
+                    savedProfile.getProfileProjects().add(profileProject);
+                });
             }
+
+            // 경력 연결
+            if (careerIds != null && !careerIds.isEmpty()) {
+                List<Long> careerIdList = mapper.readValue(careerIds, 
+                    mapper.getTypeFactory().constructCollectionType(List.class, Long.class));
+                
+                careerIdList.forEach(careerId -> {
+                    Career career = careerRepository.findById(careerId)
+                        .orElseThrow(() -> new RuntimeException("Career not found: " + careerId));
+                    if (!career.getUser().equals(user)) {
+                        throw new RuntimeException("Career does not belong to user");
+                    }
+                    ProfileCareer profileCareer = new ProfileCareer();
+                    profileCareer.setProfile(savedProfile);
+                    profileCareer.setCareer(career);
+                    savedProfile.getProfileCareers().add(profileCareer);
+                });
+            }
+
+            return savedProfile;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to process profile data", e);
         }
-        
-        // 최종 프로필 조회 및 반환
-        return profileRepository.findById(profile.getProfileId())
-            .orElseThrow(() -> new RuntimeException("Profile not found"));
     }
+
+    // private void updateProfileFields(Profile profile, JsonNode profileNode) {
+    //     profile.setTitle(profileNode.get("title").asText());
+    //     profile.setBio(profileNode.get("bio").asText());
+    //     profile.setCareerYears(profileNode.get("careerYears").asInt());
+    //     profile.setGithubUrl(profileNode.get("githubUrl").asText());
+        
+    //     // 스킬 처리
+    //     profile.getSkills().clear();
+    //     JsonNode skillsNode = profileNode.get("skills");
+    //     if (skillsNode != null && skillsNode.isArray()) {
+    //         skillsNode.forEach(skillNode -> {
+    //             String skillName = skillNode.asText();
+    //             Skill skill = skillRepository.findByName(skillName)
+    //                 .orElseGet(() -> {
+    //                     Skill newSkill = new Skill();
+    //                     newSkill.setName(skillName);
+    //                     return skillRepository.save(newSkill);
+    //                 });
+    //             profile.getSkills().add(skill);
+    //         });
+    //     }
+    // }
 
     // 사용자 프로필 조회
     public List<Profile> getProfiles() {
@@ -104,7 +166,7 @@ public class ProfileService {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return profileRepository.findByUser(user);
+        return profileRepository.findByUserOrderByUpdatedAtDesc(user);
     }
 
     // 특정 프로필 조회
@@ -114,64 +176,95 @@ public class ProfileService {
     }
 
     @Transactional
-    public Profile updateProfile(Long profileId, String username, String title, String bio, 
-                               int careerYears, String githubUrl, List<String> skills,
-                               List<Map<String, String>> projects,
-                               MultipartFile image) throws IOException {
-        Profile profile = profileRepository.findById(profileId)
-            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
-        
-        // 프로필 소유자 확인
-        if (!profile.getUser().getEmail().equals(username)) {
-            throw new RuntimeException("프로필을 수정할 권한이 없습니다.");
-        }
+    public Profile updateProfile(Long profileId, String userEmail, MultipartFile imageFile, 
+                               String profileJson, String careerIds, String projectIds) {
+        try {
+            Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
 
-        // 이미지 업로드
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = fileUtil.uploadImage(image);
-            profile.setImageUrl(imageUrl);
-        }
-        
-        // 기본 정보 업데이트
-        profile.setTitle(title);
-        profile.setBio(bio);
-        profile.setCareerYears(careerYears);
-        profile.setGithubUrl(githubUrl);
-        
-        // 스킬 업데이트
-        profile.getSkills().clear();
-        if (skills != null) {
-            for (String skillName : skills) {
-                skillService.addSkillToProfile(profileId, skillName);
+            // 권한 체크
+            if (!profile.getUser().getEmail().equals(userEmail)) {
+                throw new RuntimeException("Not authorized to update this profile");
             }
-        }
-        
-        // 프로젝트 업데이트
-        profile.getProjects().clear();
-        if (projects != null) {
-            for (Map<String, String> project : projects) {
-                @SuppressWarnings("unchecked")
-                List<String> projectSkills = project.containsKey("skills") 
-                    ? Arrays.asList(project.get("skills").split(","))
-                    : null;
-                projectService.addProjectToProfile(
-                    profileId,
-                    project.get("title"),
-                    project.get("description"),
-                    project.get("link"),
-                    projectSkills
-                );
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode profileNode = mapper.readTree(profileJson);
+            
+            // 기본 프로필 정보 업데이트
+            profile.setTitle(profileNode.get("title").asText());
+            profile.setBio(profileNode.get("bio").asText());
+            profile.setCareerYears(profileNode.get("careerYears").asInt());
+            profile.setGithubUrl(profileNode.get("githubUrl").asText());
+
+            // 이미지 처리
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrl = fileUtil.uploadImage(imageFile);
+                profile.setImageUrl(imageUrl);
             }
+
+            // 스킬 처리
+            profile.getSkills().clear();
+            JsonNode skillsNode = profileNode.get("skills");
+            if (skillsNode != null && skillsNode.isArray()) {
+                skillsNode.forEach(skillNode -> {
+                    String skillName = skillNode.asText();
+                    Skill skill = skillRepository.findByName(skillName)
+                        .orElseGet(() -> {
+                            Skill newSkill = new Skill();
+                            newSkill.setName(skillName);
+                            return skillRepository.save(newSkill);
+                        });
+                    profile.getSkills().add(skill);
+                });
+            }
+
+            // 프로젝트 연결
+            if (projectIds != null && !projectIds.isEmpty()) {
+                // 기존 프로젝트 연결 제거
+                profile.getProfileProjects().clear();
+                
+                List<Long> projectIdList = mapper.readValue(projectIds, 
+                    mapper.getTypeFactory().constructCollectionType(List.class, Long.class));
+                
+                projectIdList.forEach(projectId -> {
+                    Project project = projectRepository.findById(projectId)
+                        .orElseThrow(() -> new RuntimeException("Project not found: " + projectId));
+                    ProfileProject profileProject = new ProfileProject();
+                    profileProject.setProfile(profile);
+                    profileProject.setProject(project);
+                    profile.getProfileProjects().add(profileProject);
+                });
+            }
+
+            // 경력 연결
+            if (careerIds != null && !careerIds.isEmpty()) {
+                // 기존 경력 연결 제거
+                profile.getProfileCareers().clear();
+                
+                List<Long> careerIdList = mapper.readValue(careerIds, 
+                    mapper.getTypeFactory().constructCollectionType(List.class, Long.class));
+                
+                careerIdList.forEach(careerId -> {
+                    Career career = careerRepository.findById(careerId)
+                        .orElseThrow(() -> new RuntimeException("Career not found: " + careerId));
+                    ProfileCareer profileCareer = new ProfileCareer();
+                    profileCareer.setProfile(profile);
+                    profileCareer.setCareer(career);
+                    profile.getProfileCareers().add(profileCareer);
+                });
+            }
+
+            return profileRepository.save(profile);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to process profile data", e);
         }
-        
-        return profileRepository.save(profile);
     }
 
     // 사용자 이메일로 프로필 조회
     public Profile getProfileByUsername(String email) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        return profileRepository.findByUser(user)
+        return profileRepository.findByUserOrderByUpdatedAtDesc(user)
             .stream()
             .findFirst()
             .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
@@ -213,7 +306,6 @@ public class ProfileService {
         // 연관된 데이터 먼저 삭제
         profile.getSkills().clear();  // 스킬 관계 제거
         likeRepository.deleteByProfile(profile); // 좋아요 관계 제거
-        profile.getProjects().clear(); // 프로젝트 관계 제거
         
         profileRepository.delete(profile);
     }
@@ -244,5 +336,47 @@ public class ProfileService {
     //     return profile.getLikedBy().stream()
     //         .anyMatch(user -> user.getEmail().equals(username));
     // }
+
+    @Transactional
+    public void addProjectToProfile(Long profileId, Long projectId) {
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
+        
+        ProfileProject profileProject = new ProfileProject();
+        profileProject.setProfile(profile);
+        profileProject.setProject(project);
+        profile.getProfileProjects().add(profileProject);
+    }
+
+    @Transactional
+    public void removeProjectFromProfile(Long profileId, Long projectId) {
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+        profile.getProfileProjects().removeIf(p -> p.getProject().getProjectId().equals(projectId));
+        profileRepository.save(profile);
+    }
+
+    @Transactional
+    public void addCareerToProfile(Long profileId, Long careerId) {
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+        Career career = careerRepository.findById(careerId)
+            .orElseThrow(() -> new RuntimeException("경력을 찾을 수 없습니다."));
+        
+        ProfileCareer profileCareer = new ProfileCareer();
+        profileCareer.setProfile(profile);
+        profileCareer.setCareer(career);
+        profile.getProfileCareers().add(profileCareer);
+    }
+
+    @Transactional
+    public void removeCareerFromProfile(Long profileId, Long careerId) {
+        Profile profile = profileRepository.findById(profileId)
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+        profile.getProfileCareers().removeIf(c -> c.getCareer().getCareerId().equals(careerId));
+        profileRepository.save(profile);
+    }
 
 }

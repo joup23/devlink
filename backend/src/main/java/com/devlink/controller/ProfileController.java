@@ -11,12 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,37 +21,22 @@ public class ProfileController {
 
     private final ProfileService profileService;
     private final LikeService likeService;
-    private final ObjectMapper objectMapper;
 
-    public ProfileController(ProfileService profileService, LikeService likeService, ObjectMapper objectMapper) {
+    public ProfileController(ProfileService profileService, LikeService likeService) {
         this.profileService = profileService;
         this.likeService = likeService;
-        this.objectMapper = objectMapper;
     }
 
-    // 프로필 작성
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ProfileDto> createProfile(
-        @RequestPart(value = "image", required = false) MultipartFile image,
-        @RequestParam("title") String title, 
-        @RequestParam("bio") String bio,
-        @RequestParam("careerYears") String careerYears,
-        @RequestParam("githubUrl") String githubUrl,
-        @RequestParam("skills") String skillsJson,
-        @RequestParam("projects") String projectsJson
-    ) throws IOException {
-        // JSON 문자열을 객체로 변환
-        List<String> skills = objectMapper.readValue(skillsJson, new TypeReference<List<String>>() {});
-        List<Map<String, Object>> projects = objectMapper.readValue(projectsJson, new TypeReference<List<Map<String, Object>>>() {});
-
-        // 이미지 처리 및 프로필 생성
-        Profile profile = profileService.createProfile(
-            title, bio, Integer.parseInt(careerYears), githubUrl,
-            projects, skills, image
-        );
-        
-        return ResponseEntity.ok(ProfileDto.from(profile));
-    }
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Profile> createProfile(
+            @RequestPart(required = false) MultipartFile image,
+            @RequestPart String profile,
+            @RequestPart(required = false) String careerIds,
+            @RequestPart(required = false) String projectIds) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Profile createdProfile = profileService.createProfile(userEmail, image, profile, careerIds, projectIds);
+        return ResponseEntity.ok(createdProfile);
+    }   
 
     // 프로필 조회
     @GetMapping
@@ -68,26 +49,16 @@ public class ProfileController {
     }
 
     // 프로필 수정
-    @PutMapping(value = "/{profileId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ProfileDto> updateProfile(
-        @PathVariable Long profileId,
-        @RequestPart(value = "image", required = false) MultipartFile image,
-        @RequestParam("title") String title,
-        @RequestParam("bio") String bio,
-        @RequestParam("careerYears") String careerYears,
-        @RequestParam("githubUrl") String githubUrl,
-        @RequestParam("skills") String skillsJson,
-        @RequestParam("projects") String projectsJson
-    ) throws IOException {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        
-        List<String> skills = objectMapper.readValue(skillsJson, new TypeReference<List<String>>() {});
-        List<Map<String, String>> projects = objectMapper.readValue(projectsJson, new TypeReference<List<Map<String, String>>>() {});
-
-        Profile updatedProfile = profileService.updateProfile(
-            profileId, username, title, bio, Integer.parseInt(careerYears), githubUrl, skills, projects, image
-        );
-        return ResponseEntity.ok(ProfileDto.from(updatedProfile));
+    @PutMapping(value = "/{profileId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Profile> updateProfile(
+            @PathVariable Long profileId,
+            @RequestPart(required = false) MultipartFile image,
+            @RequestPart String profile,
+            @RequestPart(required = false) String careerIds,
+            @RequestPart(required = false) String projectIds) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Profile updatedProfile = profileService.updateProfile(profileId, userEmail, image, profile, careerIds, projectIds);
+        return ResponseEntity.ok(updatedProfile);
     }
 
     // 특정 프로필 조회
