@@ -38,10 +38,12 @@ const ProfileForm = () => {
     const fetchProfile = async () => {
         try {
             const response = await apiClient.get(`/profiles/${profileId}`);
-            setProfile(response.data);
-            if (response.data.careers) {
-                setSelectedCareers(response.data.careers.map(career => career.careerId));
-            }
+            const profileData = response.data;
+            setProfile(profileData);
+            // 기존 스킬들을 selectedSkills에 설정
+            setSelectedSkills(profileData.skills || []);
+            setSelectedProjects(profileData.selectedProjectIds || []);
+            setSelectedCareers(profileData.selectedCareerIds || []);
         } catch (error) {
             console.error('프로필 로딩 실패:', error);
         }
@@ -81,7 +83,11 @@ const ProfileForm = () => {
             
             const profileData = {
                 ...profile,
-                skills: selectedSkills
+                // 스킬 객체 전체를 전송 (skillId와 name 포함)
+                skills: selectedSkills.map(skill => ({
+                    skillId: skill.skillId,
+                    name: skill.name
+                }))
             };
 
             if (imageFile) {
@@ -116,22 +122,19 @@ const ProfileForm = () => {
         }
     };
 
-    const handleRemoveSkill = (skillName) => {
-        if (isEdit) {
-            handleRemoveSkillFromServer(skillName);
-        } else {
-            setProfile(prev => ({
-                ...prev,
-                skills: prev.skills.filter(skill => skill.name !== skillName)
-            }));
-        }
-    };
-
     const handleSkillSelect = (skill) => {
+        // 문자열로 입력된 경우 스킬 객체로 변환
+        const skillObject = typeof skill === 'string' 
+            ? { 
+                skillId: null,  // 새로운 스킬은 ID가 없음
+                name: skill     // 입력된 문자열을 name으로 사용
+            } 
+            : skill;
+
         setSelectedSkills(prev => 
-            prev.includes(skill)
-                ? prev.filter(s => s !== skill)
-                : [...prev, skill]
+            prev.some(s => s.name === skillObject.name)  // 이름으로 중복 체크
+                ? prev.filter(s => s.name !== skillObject.name)
+                : [...prev, skillObject]
         );
     };
 
@@ -224,23 +227,9 @@ const ProfileForm = () => {
                 </div>
             </div>
 
-            {/* 스킬 섹션  */}
+            {/* 스킬 섹션 */}
             <div className="mb-8">
                 <h2 className="text-xl font-bold mb-4">스킬</h2>
-                <div className="flex flex-wrap gap-2 mb-4">
-                    {profile.skills.map((skill) => (
-                        <div key={skill.id} className="bg-gray-100 px-3 py-1 rounded flex items-center gap-2">
-                            <span>{skill.name}</span>
-                            <button
-                                onClick={() => handleRemoveSkill(skill.name)}
-                                className="text-red-500 hover:text-red-700"
-                                type="button"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
-                </div>
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">
                         스킬
@@ -281,11 +270,12 @@ const ProfileForm = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <input 
+                                <input
                                     type="checkbox"
                                     checked={selectedProjects.includes(project.projectId)}
-                                    onChange={() => {}}
+                                    onChange={() => handleProjectSelect(project.projectId)}
                                     className="h-5 w-5 text-blue-600"
+                                    onClick={e => e.stopPropagation()}
                                 />
                             </div>
                         </div>
@@ -318,11 +308,12 @@ const ProfileForm = () => {
                                         {career.endDate ? new Date(career.endDate).toLocaleDateString() : '현재'}
                                     </p>
                                 </div>
-                                <input 
+                                <input
                                     type="checkbox"
                                     checked={selectedCareers.includes(career.careerId)}
-                                    onChange={() => {}}
+                                    onChange={() => handleCareerSelect(career.careerId)}
                                     className="h-5 w-5 text-blue-600"
+                                    onClick={e => e.stopPropagation()}
                                 />
                             </div>
 

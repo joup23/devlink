@@ -1,11 +1,14 @@
 package com.devlink.dto;
 
 import com.devlink.entity.Profile;
+import com.devlink.entity.User;
+
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -25,6 +28,15 @@ public class ProfileDto {
     private String imageUrl;
     private List<Long> selectedProjectIds;  // 선택된 프로젝트 ID 리스트
     private List<Long> selectedCareerIds;   // 선택된 경력 ID 리스트
+    private User user;
+
+    // 사용자 기본 정보를 위한 필드들 추가
+    private String name;
+    private String email;
+    private LocalDate birthDate;
+    private String location;
+    private String phone;
+    private String education;
 
     public static ProfileDto from(Profile profile) {
         ProfileDto dto = new ProfileDto();
@@ -34,7 +46,7 @@ public class ProfileDto {
         dto.setCareerYears(profile.getCareerYears());
         dto.setGithubUrl(profile.getGithubUrl());
         dto.setUserEmail(profile.getUser().getEmail());
-        
+
         // 선택된 프로젝트 ID 리스트 설정
         dto.setSelectedProjectIds(profile.getProfileProjects().stream()
             .map(pp -> pp.getProject().getProjectId())
@@ -65,6 +77,17 @@ public class ProfileDto {
         dto.setViewCount(profile.getViewCount());
         
         dto.setImageUrl(profile.getImageUrl());
+        
+        // 사용자 정보 매핑
+        User user = profile.getUser();
+        if (user != null) {
+            dto.setName(user.getName());
+            dto.setEmail(user.getEmail());
+            dto.setBirthDate(user.getBirthDate());
+            dto.setLocation(user.getLocation());
+            dto.setPhone(user.getPhone());
+            dto.setEducation(user.getEducation());
+        }
         
         return dto;
     }

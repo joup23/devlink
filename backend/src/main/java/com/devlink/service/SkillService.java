@@ -1,5 +1,6 @@
 package com.devlink.service;
 
+import com.devlink.dto.SkillDto;
 import com.devlink.entity.Profile;
 import com.devlink.entity.Skill;
 import com.devlink.repository.ProfileRepository;
@@ -55,11 +56,10 @@ public class SkillService {
         return profileRepository.save(profile);
     }
 
-    public List<String> suggestSkills(String query) {
+    public List<SkillDto> suggestSkills(String query) {
         return skillRepository.findByNameContainingIgnoreCase(query)
             .stream()
-            .map(Skill::getName)
-            .limit(10)
+            .map(SkillDto::from)
             .collect(Collectors.toList());
     }
 

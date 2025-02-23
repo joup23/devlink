@@ -25,7 +25,7 @@ const ProjectForm = () => {
 
     const fetchProject = async () => {
         try {
-            const response = await apiClient.get(`/projects/${projectId}`);
+            const response = await apiClient.get(`/projects/my/${projectId}`);
             setProject(response.data);
             setSelectedSkills(response.data.skills);
         } catch (error) {

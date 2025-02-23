@@ -63,4 +63,10 @@ public class ProjectController {
         List<ProjectDto> projectDtos = projectService.getProjectsByProfileId(profileId);
         return ResponseEntity.ok(projectDtos);
     }
+
+    @GetMapping("/my/{projectId}")
+    public ResponseEntity<ProjectDto> getProjectById(@PathVariable Long projectId) {
+        ProjectDto projectDto = projectService.getProjectById(projectId);
+        return ResponseEntity.ok(projectDto);
+    }
 }

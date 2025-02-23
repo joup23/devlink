@@ -1,5 +1,8 @@
 package com.devlink.service;
 
+import com.devlink.dto.ProfileCareerDto;
+import com.devlink.dto.ProfileDto;
+import com.devlink.dto.ProfileProjectDto;
 import com.devlink.entity.Career;
 import com.devlink.entity.Profile;
 import com.devlink.entity.Project;
@@ -28,6 +31,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class ProfileService {
@@ -80,16 +89,19 @@ public class ProfileService {
             // 스킬 처리
             JsonNode skillsNode = profileNode.get("skills");
             if (skillsNode != null && skillsNode.isArray()) {
+                Set<Skill> skills = new HashSet<>();
                 skillsNode.forEach(skillNode -> {
-                    String skillName = skillNode.asText();
+                    String skillName = skillNode.get("name").asText();
+                    // 기존 스킬이 있으면 사용, 없으면 새로 생성
                     Skill skill = skillRepository.findByName(skillName)
                         .orElseGet(() -> {
                             Skill newSkill = new Skill();
                             newSkill.setName(skillName);
                             return skillRepository.save(newSkill);
                         });
-                    profile.getSkills().add(skill);
+                    skills.add(skill);
                 });
+                profile.setSkills(skills);
             }
 
             // 프로필 저장
@@ -171,8 +183,15 @@ public class ProfileService {
 
     // 특정 프로필 조회
     public Profile getProfile(Long profileId) {
-        return profileRepository.findById(profileId)
+        Profile profile = profileRepository.findByIdWithUser(profileId)
             .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+            
+        // 민감한 정보 제거
+        if (profile.getUser() != null) {
+            profile.getUser().setPassword(null);
+        }
+        
+        return profile;
     }
 
     @Transactional
@@ -206,23 +225,24 @@ public class ProfileService {
             profile.getSkills().clear();
             JsonNode skillsNode = profileNode.get("skills");
             if (skillsNode != null && skillsNode.isArray()) {
+                Set<Skill> skills = new HashSet<>();
                 skillsNode.forEach(skillNode -> {
-                    String skillName = skillNode.asText();
+                    String skillName = skillNode.get("name").asText();
+                    // 기존 스킬이 있으면 사용, 없으면 새로 생성
                     Skill skill = skillRepository.findByName(skillName)
                         .orElseGet(() -> {
                             Skill newSkill = new Skill();
                             newSkill.setName(skillName);
                             return skillRepository.save(newSkill);
                         });
-                    profile.getSkills().add(skill);
+                    skills.add(skill);
                 });
+                profile.setSkills(skills);
             }
-
+            // 기존 프로젝트 연결 제거
+            profile.getProfileProjects().clear();
             // 프로젝트 연결
             if (projectIds != null && !projectIds.isEmpty()) {
-                // 기존 프로젝트 연결 제거
-                profile.getProfileProjects().clear();
-                
                 List<Long> projectIdList = mapper.readValue(projectIds, 
                     mapper.getTypeFactory().constructCollectionType(List.class, Long.class));
                 
@@ -235,12 +255,10 @@ public class ProfileService {
                     profile.getProfileProjects().add(profileProject);
                 });
             }
-
+            // 기존 경력 연결 제거
+            profile.getProfileCareers().clear();
             // 경력 연결
             if (careerIds != null && !careerIds.isEmpty()) {
-                // 기존 경력 연결 제거
-                profile.getProfileCareers().clear();
-                
                 List<Long> careerIdList = mapper.readValue(careerIds, 
                     mapper.getTypeFactory().constructCollectionType(List.class, Long.class));
                 
@@ -271,11 +289,21 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Profile> getAllProfiles(Pageable pageable, List<String> skills) {
+    public Page<ProfileDto> getAllProfiles(Pageable pageable, List<String> skills) {
+        Page<Profile> profilePage;
         if (skills == null || skills.isEmpty()) {
-            return profileRepository.findAllByOrderByUpdatedAtDesc(pageable);
+            profilePage = profileRepository.findAllByOrderByUpdatedAtDescPage(pageable);
+        } else {
+            profilePage = profileRepository.findBySkillsNameIn(skills, pageable);
         }
-        return profileRepository.findBySkillsNameIn(skills, pageable);
+
+        return profilePage.map(profile -> {
+            ProfileDto dto = ProfileDto.from(profile);
+            // 프로필 목록에서는 프로젝트와 경력 정보를 제외
+            dto.setProjects(null);
+            dto.setCareers(null);
+            return dto;
+        });
     }
 
     public List<Profile> getRecentProfiles(int limit) {
