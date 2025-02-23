@@ -32,6 +32,12 @@ public class ProjectService {
         this.profileRepository = profileRepository;
     }
 
+    public ProjectDto getProjectById(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
+        return ProjectDto.from(project);
+    }
+
     public List<ProjectDto> getProjectsByProfileId(Long profileId) {
         Profile profile = profileRepository.findById(profileId)
             .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));

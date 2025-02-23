@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.devlink.entity.User;
 import com.devlink.service.UserService;
+import com.devlink.dto.SignupDto;
 import com.devlink.dto.UserUpdateDto;
 
 @RestController
@@ -60,7 +61,8 @@ public class UserController {
     public ResponseEntity<?> getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(username);
-        return ResponseEntity.ok(user);
+        SignupDto signupDto = SignupDto.from(user);
+        return ResponseEntity.ok(signupDto);
     }
 
     @PutMapping("/me")

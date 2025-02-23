@@ -38,7 +38,11 @@ const SignupPage = () => {
             await apiClient.post('/auth/register', {
                 email: formData.email,
                 password: formData.password,
-                name: formData.name
+                name: formData.name,
+                birthDate: formData.birthDate,
+                location: formData.location,
+                phone: formData.phone,
+                education: formData.education
             });
             
             alert('회원가입이 완료되었습니다.');

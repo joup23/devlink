@@ -1,8 +1,10 @@
 package com.devlink.controller;
 
 import com.devlink.entity.Profile;
+import com.devlink.entity.User;
 import com.devlink.service.LikeService;
 import com.devlink.service.ProfileService;
+import com.devlink.service.UserService;
 import com.devlink.dto.ProfileDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,10 +23,12 @@ public class ProfileController {
 
     private final ProfileService profileService;
     private final LikeService likeService;
+    private final UserService userService;
 
-    public ProfileController(ProfileService profileService, LikeService likeService) {
+    public ProfileController(ProfileService profileService, LikeService likeService, UserService userService) {
         this.profileService = profileService;
         this.likeService = likeService;
+        this.userService = userService;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -48,6 +52,13 @@ public class ProfileController {
         return ResponseEntity.ok(profileDtos);
     }
 
+    // 특정 프로필 조회
+    @GetMapping("/{profileId}")
+    public ResponseEntity<ProfileDto> getProfile(@PathVariable Long profileId) {
+        Profile profile = profileService.getProfile(profileId);
+        return ResponseEntity.ok(ProfileDto.from(profile));
+    }
+
     // 프로필 수정
     @PutMapping(value = "/{profileId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Profile> updateProfile(
@@ -61,22 +72,15 @@ public class ProfileController {
         return ResponseEntity.ok(updatedProfile);
     }
 
-    // 특정 프로필 조회
-    @GetMapping("/{profileId}")
-    public ResponseEntity<ProfileDto> getProfile(@PathVariable Long profileId) {
-        Profile profile = profileService.getProfile(profileId);
-        return ResponseEntity.ok(ProfileDto.from(profile));
-    }
-
     @GetMapping("/list")
     public ResponseEntity<Page<ProfileDto>> getAllProfiles(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "9") int size,
         @RequestParam(required = false) List<String> skills
     ) {
-        Page<Profile> profilePage = profileService.getAllProfiles(PageRequest.of(page, size), skills);
-        Page<ProfileDto> profileDtos = profilePage.map(ProfileDto::from);
-        return ResponseEntity.ok(profileDtos);
+        Page<ProfileDto> profilePage = profileService.getAllProfiles(PageRequest.of(page, size), skills);
+        
+        return ResponseEntity.ok(profilePage);
     }
 
     @GetMapping("/recent")

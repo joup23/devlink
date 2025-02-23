@@ -2,12 +2,16 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import apiClient from '../api/axios';
+import ProjectCard from '../components/ProjectCard';
+import CareerCard from '../components/CareerCard';
 
 const ProfilePage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { isLoggedIn } = useContext(AuthContext);
     const [profile, setProfile] = useState(null);
+    const [projects, setProjects] = useState([]);
+    const [careers, setCareers] = useState([]);
     const [likeCount, setLikeCount] = useState(0);
     const [isLiked, setIsLiked] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -26,6 +30,8 @@ const ProfilePage = () => {
                 await apiClient.post(`/profiles/${id}/view`);
                 
                 setProfile(profileRes.data);
+                setProjects(profileRes.data.projects || []);
+                setCareers(profileRes.data.careers || []);
                 setLikeCount(likeCountRes.data);
                 setIsLiked(isLikedRes.data);
                 setLoading(false);
@@ -58,37 +64,55 @@ const ProfilePage = () => {
     if (!profile) return <div>프로필을 찾을 수 없습니다.</div>;
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-                {/* 프로필 헤더 */}
-                <div className="flex items-center space-x-4 mb-6">
-                    {profile.imageUrl && (
+        <div className="container mx-auto px-4 py-8">
+            <div className="bg-white rounded-lg shadow p-6">
+                {/* 프로필 상단 섹션 */}
+                <div className="flex gap-8 mb-8">
+                    {/* 프로필 이미지 */}
+                    <div className="w-48 h-48">
                         <img
-                            src={profile.imageUrl}
+                            src={profile.imageUrl || '/default-profile.png'}
                             alt="프로필 이미지"
-                            className="w-24 h-24 rounded-full object-cover"
+                            className="w-full h-full object-cover rounded-lg"
                         />
-                    )}
-                    <div>
-                        <h1 className="text-2xl font-bold">{profile.title}</h1>
-                        <p className="text-gray-600">경력 {profile.careerYears}년</p>
-                        {profile.githubUrl && (
-                            <a 
-                                href={profile.githubUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-500 hover:underline"
-                            >
-                                GitHub
-                            </a>
-                        )}
+                    </div>
+
+                    {/* 기본 정보 */}
+                    <div className="flex-1">
+                        <h1 className="text-2xl font-bold mb-4">{profile.title || '제목 없음'}</h1>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-gray-600">이름</p>
+                                <p className="font-medium">{profile?.name}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-600">이메일</p>
+                                <p className="font-medium">{profile?.email}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-600">생년월일</p>
+                                <p className="font-medium">{profile?.birthDate}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-600">지역</p>
+                                <p className="font-medium">{profile?.location}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-600">연락처</p>
+                                <p className="font-medium">{profile?.phone}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-600">학력</p>
+                                <p className="font-medium">{profile?.education}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* 소개 */}
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold mb-2">소개</h2>
-                    <p className="text-gray-700 whitespace-pre-line">{profile.bio}</p>
+                {/* 자기소개 */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold mb-4">자기소개</h2>
+                    <p className="text-gray-700">{profile.bio}</p>
                 </div>
 
                 {/* 스킬 */}
@@ -106,54 +130,22 @@ const ProfilePage = () => {
                     </div>
                 </div>
 
-                {/* 프로젝트 */}
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold mb-2">프로젝트</h2>
+                {/* 경력 섹션 */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold mb-4">경력</h2>
                     <div className="space-y-4">
-                        {profile.projects.map((project) => (
-                            <div key={project.projectId} className="border rounded-lg p-4">
-                                <h3 className="text-lg font-semibold">{project.title}</h3>
-                                <p className="text-gray-600 mt-1">{project.description}</p>
-                                {project.link && (
-                                    <a
-                                        href={project.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 hover:text-blue-700 mt-2 inline-block"
-                                    >
-                                        프로젝트 링크
-                                    </a>
-                                )}
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {project.skills.map((skill, index) => (
-                                        <span
-                                            key={index}
-                                            className="bg-gray-100 text-gray-800 text-sm px-2 py-1 rounded"
-                                        >
-                                            {skill}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
+                        {careers.map((career) => (
+                            <CareerCard key={career.careerId} career={career} />
                         ))}
                     </div>
                 </div>
 
-                {/* 경력 */}
+                {/* 프로젝트 섹션 */}
                 <div>
-                    <h2 className="text-xl font-bold mb-2">경력</h2>
-                    <div className="space-y-4">
-                        {profile.careers.map((career) => (
-                            <div key={career.careerId} className="border rounded-lg p-4">
-                                <h3 className="text-lg font-semibold">{career.companyName}</h3>
-                                <p className="text-gray-600">
-                                    {career.department} - {career.position}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                    {new Date(career.startDate).toLocaleDateString()} ~ 
-                                    {career.endDate ? new Date(career.endDate).toLocaleDateString() : '현재'}
-                                </p>
-                            </div>
+                    <h2 className="text-xl font-bold mb-4">프로젝트</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {projects.map((project) => (
+                            <ProjectCard key={project.projectId} project={project} />
                         ))}
                     </div>
                 </div>

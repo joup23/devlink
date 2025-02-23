@@ -42,8 +42,8 @@ public class SkillController {
     }
 
     @GetMapping("/suggest")
-    public ResponseEntity<List<String>> suggestSkills(@RequestParam String query) {
-        List<String> suggestions = skillService.suggestSkills(query);
+    public ResponseEntity<List<SkillDto>> suggestSkills(@RequestParam String query) {
+        List<SkillDto> suggestions = skillService.suggestSkills(query);
         return ResponseEntity.ok(suggestions);
     }
 

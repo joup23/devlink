@@ -15,9 +15,12 @@ import com.devlink.repository.SkillRepository;
 import com.devlink.repository.UserRepository;
 import com.devlink.dto.CareerDto;
 import com.devlink.dto.CareerProjectDto;
+import com.devlink.dto.SkillDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class CareerService {
@@ -34,6 +37,12 @@ public class CareerService {
         this.profileRepository = profileRepository;
         this.skillRepository = skillRepository;
         this.userRepository = userRepository;
+    }
+
+    public CareerDto getCareerById(Long careerId) {
+        Career career = careerRepository.findById(careerId)
+            .orElseThrow(() -> new RuntimeException("경력사항을 찾을 수 없습니다."));
+        return CareerDto.from(career);
     }
 
     public List<CareerDto> getCareersByProfileId(Long profileId) {

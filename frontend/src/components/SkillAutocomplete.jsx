@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useSkillSuggestions } from '../hooks/useSkillSuggestions';
 
 const SkillAutocomplete = ({ onSkillSelect, selectedSkills }) => {
@@ -23,7 +23,15 @@ const SkillAutocomplete = ({ onSkillSelect, selectedSkills }) => {
     }, []);
 
     const handleSelect = (skill) => {
-        onSkillSelect(skill);
+        // 문자열로 입력된 경우 스킬 객체로 변환
+        const skillObject = typeof skill === 'string' 
+            ? { 
+                skillId: null,
+                name: skill.trim()
+            } 
+            : skill;
+
+        onSkillSelect(skillObject);
         setSearchTerm('');
         setIsOpen(false);
     };
@@ -37,6 +45,20 @@ const SkillAutocomplete = ({ onSkillSelect, selectedSkills }) => {
 
     return (
         <div ref={wrapperRef} className="relative">
+            <div className="flex flex-wrap gap-2 mb-2">
+                {selectedSkills.map((skill) => (
+                    <div key={skill.skillId} className="bg-blue-100 text-blue-800 px-3 py-1 rounded flex items-center gap-2">
+                        <span>{skill.name}</span>
+                        <button
+                            type="button"
+                            onClick={() => onSkillSelect(skill)}
+                            className="text-red-500 hover:text-red-700"
+                        >
+                            ×
+                        </button>
+                    </div>
+                ))}
+            </div>
             <div className="flex gap-2">
                 <input
                     type="text"
@@ -58,34 +80,16 @@ const SkillAutocomplete = ({ onSkillSelect, selectedSkills }) => {
                 </button>
             </div>
             
-            {/* 선택된 스킬 표시 */}
-            <div className="flex flex-wrap gap-2 mt-2">
-                {selectedSkills.map((skill, index) => (
-                    <span
-                        key={index}
-                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center"
-                    >
-                        {skill}
-                        <button
-                            onClick={() => onSkillSelect(skill)}
-                            className="ml-2 text-blue-600 hover:text-blue-800"
-                        >
-                            ×
-                        </button>
-                    </span>
-                ))}
-            </div>
-
             {/* 추천 스킬 드롭다운 */}
             {isOpen && suggestions.length > 0 && (
                 <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
-                    {suggestions.map((suggestion, index) => (
+                    {suggestions.map((skill) => (
                         <div
-                            key={index}
-                            onClick={() => handleSelect(suggestion)}
+                            key={skill.skillId}
+                            onClick={() => handleSelect(skill)}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         >
-                            {suggestion}
+                            {skill.name}
                         </div>
                     ))}
                 </div>

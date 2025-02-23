@@ -126,44 +126,21 @@ const ProfileListPage = () => {
                             )}
                         </div>
 
-                        <div className="mb-4">
-                            <h3 className="font-semibold mb-2">보유 스킬</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {profile.skills.map((skill, index) => (
-                                    <span 
-                                        key={index}
-                                        className="bg-gray-100 px-2 py-1 rounded text-sm"
-                                    >
-                                        {skill.name}
-                                    </span>
-                                ))}
+                        {/* 스킬 표시 */}
+                        {profile.skills && profile.skills.length > 0 && (
+                            <div className="mb-4">
+                                <div className="flex flex-wrap gap-2">
+                                    {profile.skills.map((skill, index) => (
+                                        <span 
+                                            key={index}
+                                            className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded"
+                                        >
+                                            {skill.name}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold mb-2">프로젝트</h3>
-                            <div className="space-y-2">
-                                {profile.projects.map((project) => (
-                                    <div key={project.projectId} className="text-sm">
-                                        <p className="font-medium">{project.title}</p>
-                                        <p className="text-gray-600">{project.description}</p>
-                                        {/* 프로젝트 스킬 표시 */}
-                                        {project.skills && project.skills.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 mt-1">
-                                                {project.skills.map((skill, index) => (
-                                                    <span 
-                                                        key={index}
-                                                        className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded"
-                                                    >
-                                                        {skill}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        )}
 
                         <Link 
                             to={`/profile/${profile.profileId}`}

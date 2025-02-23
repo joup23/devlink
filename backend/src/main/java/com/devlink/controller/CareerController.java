@@ -73,4 +73,10 @@ public class CareerController {
         List<CareerDto> careerDtos = careerService.getCareersByProfileId(profileId);
         return ResponseEntity.ok(careerDtos);
     }
+
+    @GetMapping("/my/{careerId}")
+    public ResponseEntity<CareerDto> getCareerById(@PathVariable Long careerId) {
+        CareerDto careerDto = careerService.getCareerById(careerId);
+        return ResponseEntity.ok(careerDto);
+    }
 } 
