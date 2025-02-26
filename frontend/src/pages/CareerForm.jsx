@@ -49,11 +49,18 @@ const CareerForm = () => {
         const updatedProjects = [...career.projects];
         const currentSkills = updatedProjects[index].skills || [];
         
+        // skill이 문자열인 경우 SkillDto 객체로 변환
+        const skillDto = typeof skill === 'string' 
+            ? { skillId: null, name: skill }
+            : skill;
+        
+        const skillExists = currentSkills.some(s => s.name === skillDto.name);
+        
         updatedProjects[index] = {
             ...updatedProjects[index],
-            skills: currentSkills.includes(skill)
-                ? currentSkills.filter(s => s !== skill)
-                : [...currentSkills, skill]
+            skills: skillExists
+                ? currentSkills.filter(s => s.name !== skillDto.name)
+                : [...currentSkills, skillDto]
         };
         
         setCareer({ ...career, projects: updatedProjects });
@@ -220,6 +227,7 @@ const CareerForm = () => {
                                     selectedSkills={project.skills || []}
                                 />
                             </div>
+                            
                         </div>
                     ))}
                 </div>

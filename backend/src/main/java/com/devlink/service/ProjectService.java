@@ -60,11 +60,11 @@ public class ProjectService {
 
         // 스킬 추가
         if (projectDto.getSkills() != null) {
-            projectDto.getSkills().forEach(skillName -> {
-                Skill skill = skillRepository.findByName(skillName)
+            projectDto.getSkills().forEach(skillDto -> {
+                Skill skill = skillRepository.findByName(skillDto.getName())
                     .orElseGet(() -> {
                         Skill newSkill = new Skill();
-                        newSkill.setName(skillName);
+                        newSkill.setName(skillDto.getName());
                         return skillRepository.save(newSkill);
                     });
                 project.getSkills().add(skill);
@@ -94,9 +94,35 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectDto updateProject(Long projectId, ProjectDto projectDto) {
+    public ProjectDto updateProject(String userEmail, Long projectId, ProjectDto projectDto) {
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("Project not found"));
+        if (!project.getUser().equals(user)) {
+            throw new RuntimeException("Unauthorized access");
+        }
         // 프로젝트 수정 로직
-        return null; // Placeholder return, actual implementation needed
+        project.setTitle(projectDto.getTitle());
+        project.setDescription(projectDto.getDescription());
+        project.setLink(projectDto.getLink());
+
+        // 기존 스킬 제거
+        project.getSkills().clear();
+        // 새로운 스킬 추가
+        if (projectDto.getSkills() != null) {
+            projectDto.getSkills().forEach(skillDto -> {
+                Skill skill = skillRepository.findByName(skillDto.getName())
+                    .orElseGet(() -> {
+                        Skill newSkill = new Skill();
+                        newSkill.setName(skillDto.getName());
+                        return skillRepository.save(newSkill);
+                    });
+                project.getSkills().add(skill);
+            });
+        }
+        
+        return ProjectDto.from(projectRepository.save(project));
     }
 
     public void deleteProject(Long projectId) {

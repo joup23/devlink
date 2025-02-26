@@ -27,7 +27,7 @@ const ProfilePage = () => {
                 ]);
                 
                 // 조회수 증가 API 비동기 호출
-                await apiClient.post(`/profiles/${id}/view`);
+                //await apiClient.post(`/profiles/${id}/view`);
                 
                 setProfile(profileRes.data);
                 setProjects(profileRes.data.projects || []);

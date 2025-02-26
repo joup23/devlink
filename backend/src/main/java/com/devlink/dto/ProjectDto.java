@@ -4,7 +4,7 @@ import com.devlink.entity.Project;
 import com.devlink.entity.Skill;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
@@ -14,7 +14,7 @@ public class ProjectDto {
     private String title;
     private String description;
     private String link;
-    private Set<String> skills;
+    private List<SkillDto> skills;
 
     public static ProjectDto from(Project project) {
         ProjectDto dto = new ProjectDto();
@@ -23,8 +23,8 @@ public class ProjectDto {
         dto.setDescription(project.getDescription());
         dto.setLink(project.getLink());
         dto.setSkills(project.getSkills().stream()
-            .map(Skill::getName)
-            .collect(Collectors.toSet()));
+            .map(SkillDto::from)
+            .collect(Collectors.toList()));
         return dto;
     }
 } 

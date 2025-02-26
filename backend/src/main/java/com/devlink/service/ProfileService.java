@@ -185,11 +185,6 @@ public class ProfileService {
     public Profile getProfile(Long profileId) {
         Profile profile = profileRepository.findByIdWithUser(profileId)
             .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
-            
-        // 민감한 정보 제거
-        if (profile.getUser() != null) {
-            profile.getUser().setPassword(null);
-        }
         
         return profile;
     }

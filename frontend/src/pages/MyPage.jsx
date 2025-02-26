@@ -144,7 +144,7 @@ const MyPage = () => {
     const handleDeleteCareer = async (careerId) => {
         if (window.confirm('경력을 삭제하시겠습니까?')) {
             try {
-                await apiClient.delete(`/api/careers/${careerId}`);
+                await apiClient.delete(`/careers/${careerId}`);
                 alert('경력이 삭제되었습니다.');
                 fetchCareers();
             } catch (error) {
@@ -385,6 +385,22 @@ const MyPage = () => {
                                         프로젝트: {career.projects.length}개
                                     </p>
                                 </div>
+                                {career.projects && career.projects.map((project, index) => (
+                                    <div key={index} className="bg-gray-50 p-3 rounded mt-2">
+                                        <h4 className="font-semibold">{project.projectName}</h4>
+                                        <p className="text-sm text-gray-600">{project.description}</p>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {project.skills && project.skills.map((skill, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                                >
+                                                    {skill.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ))}
                     </div>
@@ -408,23 +424,13 @@ const MyPage = () => {
                                     <div>
                                         <h3 className="text-lg font-semibold">{project.title}</h3>
                                         <p className="text-gray-600">{project.description}</p>
-                                        {project.link && (
-                                            <a
-                                                href={project.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-500 hover:text-blue-700"
-                                            >
-                                                프로젝트 링크
-                                            </a>
-                                        )}
                                         <div className="flex flex-wrap gap-2 mt-2">
-                                            {project.skills.map((skill, i) => (
+                                            {project.skills && project.skills.map((skill, i) => (
                                                 <span
                                                     key={i}
                                                     className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
                                                 >
-                                                    {skill}
+                                                    {skill.name}
                                                 </span>
                                             ))}
                                         </div>
