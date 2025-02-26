@@ -17,7 +17,7 @@ public class CareerProjectDto {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
-    private List<String> skills;
+    private List<SkillDto> skills;
 
     public static CareerProjectDto from(CareerProject project) {
         CareerProjectDto dto = new CareerProjectDto();
@@ -27,7 +27,7 @@ public class CareerProjectDto {
         dto.setStartDate(project.getStartDate());
         dto.setEndDate(project.getEndDate());
         dto.setSkills(project.getSkills().stream()
-            .map(Skill::getName)
+            .map(SkillDto::from)
             .collect(Collectors.toList()));
         return dto;
     }

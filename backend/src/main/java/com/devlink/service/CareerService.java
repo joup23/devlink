@@ -79,11 +79,11 @@ public class CareerService {
 
                 // 스킬 추가
                 if (projectDto.getSkills() != null) {
-                    for (String skillName : projectDto.getSkills()) {
-                        Skill skill = skillRepository.findByName(skillName)
+                    for (SkillDto skillDto : projectDto.getSkills()) {
+                        Skill skill = skillRepository.findByName(skillDto.getName())
                             .orElseGet(() -> {
                                 Skill newSkill = new Skill();
-                                newSkill.setName(skillName);
+                                newSkill.setName(skillDto.getName());
                                 return skillRepository.save(newSkill);
                             });
                         project.getSkills().add(skill);
@@ -122,11 +122,11 @@ public class CareerService {
 
                 // 스킬 추가
                 if (projectDto.getSkills() != null) {
-                    for (String skillName : projectDto.getSkills()) {
-                        Skill skill = skillRepository.findByName(skillName)
+                    for (SkillDto skillDto : projectDto.getSkills()) {
+                        Skill skill = skillRepository.findByName(skillDto.getName())
                             .orElseGet(() -> {
                                 Skill newSkill = new Skill();
-                                newSkill.setName(skillName);
+                                newSkill.setName(skillDto.getName());
                                 return skillRepository.save(newSkill);
                             });
                         project.getSkills().add(skill);
@@ -168,11 +168,11 @@ public class CareerService {
 
                 // 스킬 추가
                 if (projectDto.getSkills() != null) {
-                    for (String skillName : projectDto.getSkills()) {
-                        Skill skill = skillRepository.findByName(skillName)
+                    for (SkillDto skillDto : projectDto.getSkills()) {
+                        Skill skill = skillRepository.findByName(skillDto.getName())
                             .orElseGet(() -> {
                                 Skill newSkill = new Skill();
-                                newSkill.setName(skillName);
+                                newSkill.setName(skillDto.getName());
                                 return skillRepository.save(newSkill);
                             });
                         project.getSkills().add(skill);

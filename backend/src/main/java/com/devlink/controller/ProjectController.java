@@ -34,7 +34,8 @@ public class ProjectController {
     public ResponseEntity<ProjectDto> updateProject(
             @PathVariable Long projectId,
             @RequestBody ProjectDto projectDto) {
-        ProjectDto updated = projectService.updateProject(projectId, projectDto);
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        ProjectDto updated = projectService.updateProject(userEmail, projectId, projectDto);
         return ResponseEntity.ok(updated);
     }
 

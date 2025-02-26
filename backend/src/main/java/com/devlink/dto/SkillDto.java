@@ -1,15 +1,19 @@
 package com.devlink.dto;
 
 import com.devlink.entity.Skill;
+import lombok.Getter;
+import lombok.Setter;
 
-public record SkillDto(
-    Long skillId,
-    String name
-) {
+@Getter
+@Setter
+public class SkillDto {
+    private Long skillId;
+    private String name;
+
     public static SkillDto from(Skill skill) {
-        return new SkillDto(
-            skill.getSkillId(),
-            skill.getName()
-        );
+        SkillDto dto = new SkillDto();
+        dto.setSkillId(skill.getSkillId());
+        dto.setName(skill.getName());
+        return dto;
     }
 }

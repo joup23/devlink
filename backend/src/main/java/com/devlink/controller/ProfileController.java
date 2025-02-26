@@ -56,6 +56,9 @@ public class ProfileController {
     @GetMapping("/{profileId}")
     public ResponseEntity<ProfileDto> getProfile(@PathVariable Long profileId) {
         Profile profile = profileService.getProfile(profileId);
+
+        profileService.incrementViewCount(profileId);
+        
         return ResponseEntity.ok(ProfileDto.from(profile));
     }
 
