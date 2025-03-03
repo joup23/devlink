@@ -77,6 +77,7 @@ public class Profile {
         joinColumns = @JoinColumn(name = "profile_id"),
         inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
+    @OrderBy("name ASC")
     private Set<Skill> skills = new HashSet<>();
 
     // @Column(name = "like_count")

@@ -36,6 +36,7 @@ public class Project {
         joinColumns = @JoinColumn(name = "project_id"),
         inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
+    @OrderBy("name ASC")
     private Set<Skill> skills = new HashSet<>();
 
     @ElementCollection

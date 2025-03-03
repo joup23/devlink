@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,6 +48,7 @@ public class CareerProject {
         joinColumns = @JoinColumn(name = "career_project_id"),
         inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
+    @OrderBy("name ASC")
     private Set<Skill> skills = new HashSet<>();
 
 }
