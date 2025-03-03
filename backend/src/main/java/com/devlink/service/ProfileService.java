@@ -82,7 +82,7 @@ public class ProfileService {
             
             // 이미지 처리
             if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = fileUtil.uploadImage(imageFile);
+                String imageUrl = fileUtil.uploadImage(imageFile, "profiles");
                 profile.setImageUrl(imageUrl);
             }
 
@@ -212,7 +212,7 @@ public class ProfileService {
 
             // 이미지 처리
             if (imageFile != null && !imageFile.isEmpty()) {
-                String imageUrl = fileUtil.uploadImage(imageFile);
+                String imageUrl = fileUtil.uploadImage(imageFile, "profiles");
                 profile.setImageUrl(imageUrl);
             }
 

@@ -170,7 +170,7 @@ const ProfileForm = () => {
                         <img
                             src={imagePreview || profile.imageUrl}
                             alt="프로필 이미지"
-                            className="w-32 h-32 object-cover rounded-full"
+                            className="w-32 h-32 object-cover rounded-lg"
                         />
                     )}
                     <input

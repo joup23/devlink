@@ -102,7 +102,7 @@ const ProfileListPage = () => {
                                 <img
                                     src={profile.imageUrl}
                                     alt="프로필 이미지"
-                                    className="w-24 h-24 object-cover rounded-full"
+                                    className="w-24 h-24 object-cover rounded-lg"
                                 />
                             </div>
                         )}
@@ -121,7 +121,7 @@ const ProfileListPage = () => {
                                     rel="noopener noreferrer"
                                     className="text-blue-500 hover:underline text-sm"
                                 >
-                                    GitHub
+                                    {profile.githubUrl}
                                 </a>
                             )}
                         </div>

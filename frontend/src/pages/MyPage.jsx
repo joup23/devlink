@@ -289,7 +289,7 @@ const MyPage = () => {
                                             <img
                                                 src={profile.imageUrl}
                                                 alt="프로필 이미지"
-                                                className="w-16 h-16 rounded-full object-cover"
+                                                className="w-16 h-16 rounded-full object-cover rounded-lg"
                                             />
                                         )}
                                         <div>

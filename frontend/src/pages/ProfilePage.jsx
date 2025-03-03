@@ -115,6 +115,14 @@ const ProfilePage = () => {
                     <p className="text-gray-700">{profile.bio}</p>
                 </div>
 
+                {/* 깃허브 */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold mb-4">GitHub</h2>
+                    <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                        {profile.githubUrl}
+                    </a>
+                </div>
+
                 {/* 스킬 */}
                 <div className="mb-6">
                     <h2 className="text-xl font-bold mb-2">스킬</h2>
@@ -143,7 +151,7 @@ const ProfilePage = () => {
                 {/* 프로젝트 섹션 */}
                 <div>
                     <h2 className="text-xl font-bold mb-4">프로젝트</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                         {projects.map((project) => (
                             <ProjectCard key={project.projectId} project={project} />
                         ))}

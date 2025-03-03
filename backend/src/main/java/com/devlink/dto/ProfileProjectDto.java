@@ -15,6 +15,7 @@ public class ProfileProjectDto {
     private String description;
     private String link;
     private List<SkillDto> skills;
+    private List<String> imageUrls;
 
     public static ProfileProjectDto from(ProfileProject profileProject) {
         ProfileProjectDto dto = new ProfileProjectDto();
@@ -27,6 +28,7 @@ public class ProfileProjectDto {
         dto.setSkills(project.getSkills().stream()
             .map(SkillDto::from)
             .collect(Collectors.toList()));
+        dto.setImageUrls(project.getImageUrls());
         
         return dto;
     }
