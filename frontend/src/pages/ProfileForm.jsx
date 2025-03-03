@@ -240,49 +240,7 @@ const ProfileForm = () => {
                     />
                 </div>
             </div>
-
-            {/* 프로젝트 선택 섹션 */}
-            <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">프로젝트 선택</h2>
-                <div className="grid gap-4">
-                    {myProjects.map((project) => (
-                        <div 
-                            key={project.projectId} 
-                            className={`border rounded-lg p-4 cursor-pointer ${
-                                selectedProjects.includes(project.projectId) 
-                                    ? 'border-blue-500 bg-blue-50' 
-                                    : 'hover:border-gray-400'
-                            }`}
-                            onClick={() => handleProjectSelect(project.projectId)}
-                        >
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h3 className="text-lg font-semibold">{project.title}</h3>
-                                    <p className="text-gray-600">{project.description}</p>
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {project.skills.map((skill, i) => (
-                                            <span
-                                                key={i}
-                                                className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                                            >
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedProjects.includes(project.projectId)}
-                                    onChange={() => handleProjectSelect(project.projectId)}
-                                    className="h-5 w-5 text-blue-600"
-                                    onClick={e => e.stopPropagation()}
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
+            
             {/* 경력 선택 섹션 */}
             <div className="mb-8">
                 <h2 className="text-xl font-bold mb-4">경력 선택</h2>
@@ -329,12 +287,54 @@ const ProfileForm = () => {
                                                     key={i}
                                                     className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
                                                 >
-                                                    {skill}
+                                                    {skill.name}
                                                 </span>
                                             ))}
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* 프로젝트 선택 섹션 */}
+            <div className="mb-8">
+                <h2 className="text-xl font-bold mb-4">프로젝트 선택</h2>
+                <div className="grid gap-4">
+                    {myProjects.map((project) => (
+                        <div 
+                            key={project.projectId} 
+                            className={`border rounded-lg p-4 cursor-pointer ${
+                                selectedProjects.includes(project.projectId) 
+                                    ? 'border-blue-500 bg-blue-50' 
+                                    : 'hover:border-gray-400'
+                            }`}
+                            onClick={() => handleProjectSelect(project.projectId)}
+                        >
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-lg font-semibold">{project.title}</h3>
+                                    <p className="text-gray-600">{project.description}</p>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {project.skills.map((skill, i) => (
+                                            <span
+                                                key={i}
+                                                className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                            >
+                                                {skill.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedProjects.includes(project.projectId)}
+                                    onChange={() => handleProjectSelect(project.projectId)}
+                                    className="h-5 w-5 text-blue-600"
+                                    onClick={e => e.stopPropagation()}
+                                />
                             </div>
                         </div>
                     ))}
