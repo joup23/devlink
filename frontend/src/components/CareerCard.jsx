@@ -1,12 +1,7 @@
 import React from 'react';
+import { formatYearMonth } from '../utils/dateUtils';
 
 const CareerCard = ({ career }) => {
-    // 날짜 포맷팅 함수
-    const formatDate = (dateString) => {
-        if (!dateString) return '현재';
-        return new Date(dateString).toLocaleDateString();
-    };
-
     return (
         <div className="border rounded-lg p-4">
             <div>
@@ -15,7 +10,7 @@ const CareerCard = ({ career }) => {
                     {career.department} - {career.position}
                 </p>
                 <p className="text-sm text-gray-500">
-                    {formatDate(career.startDate)} ~ {formatDate(career.endDate)}
+                    {formatYearMonth(career.startDate)} ~ {career.endDate ? formatYearMonth(career.endDate) : '현재'}
                 </p>
                 {career.description && (
                     <div className="mt-2">
@@ -33,10 +28,10 @@ const CareerCard = ({ career }) => {
                             <h4 className="font-semibold">{project.projectName}</h4>
                             {project.startDate && (
                                 <p className="text-xs text-gray-500 mt-1">
-                                    {formatDate(project.startDate)} ~ {formatDate(project.endDate)}
+                                    {formatYearMonth(project.startDate)} ~ {project.endDate ? formatYearMonth(project.endDate) : '현재'}
                                 </p>
                             )}
-                            <p className="text-sm text-gray-600 mt-1">{project.description}</p>
+                            <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{project.description}</p>
                             <div className="flex flex-wrap gap-2 mt-2">
                                 {project.skills.map((skill, i) => (
                                     <span

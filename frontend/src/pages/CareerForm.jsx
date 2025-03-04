@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../api/axios';
 import SkillAutocomplete from '../components/SkillAutocomplete';
-import Footer from '../components/Footer';
 
 const CareerForm = () => {
     const { careerId } = useParams();
@@ -114,170 +113,167 @@ const CareerForm = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <div className="container mx-auto p-4 flex-grow">
-                <h1 className="text-2xl font-bold mb-6">
-                    {isEdit ? '경력 수정' : '경력 등록'}
-                </h1>
+        <div className="container mx-auto p-4">
+            <h1 className="text-2xl font-bold mb-6">
+                {isEdit ? '경력 수정' : '경력 등록'}
+            </h1>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                    <label className="block mb-2">회사명</label>
+                    <input
+                        type="text"
+                        value={career.companyName}
+                        onChange={(e) => setCareer({...career, companyName: e.target.value})}
+                        className="w-full border rounded p-2"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block mb-2">부서</label>
+                    <input
+                        type="text"
+                        value={career.department}
+                        onChange={(e) => setCareer({...career, department: e.target.value})}
+                        className="w-full border rounded p-2"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block mb-2">직책</label>
+                    <input
+                        type="text"
+                        value={career.position}
+                        onChange={(e) => setCareer({...career, position: e.target.value})}
+                        className="w-full border rounded p-2"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block mb-2">경력 설명</label>
+                    <textarea
+                        value={career.description || ''}
+                        onChange={(e) => setCareer({...career, description: e.target.value})}
+                        className="w-full border rounded p-2"
+                        rows="3"
+                        placeholder="이 회사에서의 주요 업무와 성과를 설명해주세요."
+                    />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block mb-2">회사명</label>
+                        <label className="block mb-2">시작일</label>
                         <input
-                            type="text"
-                            value={career.companyName}
-                            onChange={(e) => setCareer({...career, companyName: e.target.value})}
+                            type="date"
+                            value={career.startDate}
+                            onChange={(e) => setCareer({...career, startDate: e.target.value})}
                             className="w-full border rounded p-2"
                             required
                         />
                     </div>
-
                     <div>
-                        <label className="block mb-2">부서</label>
+                        <label className="block mb-2">종료일</label>
                         <input
-                            type="text"
-                            value={career.department}
-                            onChange={(e) => setCareer({...career, department: e.target.value})}
+                            type="date"
+                            value={career.endDate || ''}
+                            onChange={(e) => setCareer({...career, endDate: e.target.value})}
                             className="w-full border rounded p-2"
-                            required
                         />
                     </div>
+                </div>
 
-                    <div>
-                        <label className="block mb-2">직책</label>
-                        <input
-                            type="text"
-                            value={career.position}
-                            onChange={(e) => setCareer({...career, position: e.target.value})}
-                            className="w-full border rounded p-2"
-                            required
-                        />
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold">프로젝트</h2>
+                        <button
+                            type="button"
+                            onClick={addProject}
+                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                        >
+                            프로젝트 추가
+                        </button>
                     </div>
 
-                    <div>
-                        <label className="block mb-2">경력 설명</label>
-                        <textarea
-                            value={career.description || ''}
-                            onChange={(e) => setCareer({...career, description: e.target.value})}
-                            className="w-full border rounded p-2"
-                            rows="3"
-                            placeholder="이 회사에서의 주요 업무와 성과를 설명해주세요."
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block mb-2">시작일</label>
-                            <input
-                                type="date"
-                                value={career.startDate}
-                                onChange={(e) => setCareer({...career, startDate: e.target.value})}
-                                className="w-full border rounded p-2"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block mb-2">종료일</label>
-                            <input
-                                type="date"
-                                value={career.endDate || ''}
-                                onChange={(e) => setCareer({...career, endDate: e.target.value})}
-                                className="w-full border rounded p-2"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-bold">프로젝트</h2>
-                            <button
-                                type="button"
-                                onClick={addProject}
-                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                            >
-                                프로젝트 추가
-                            </button>
-                        </div>
-
-                        {career.projects.map((project, index) => (
-                            <div key={index} className="border p-4 rounded space-y-4">
-                                <div className="flex justify-between">
-                                    <h3 className="font-semibold">프로젝트 {index + 1}</h3>
-                                    {index > 0 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeProject(index)}
-                                            className="text-red-500 hover:text-red-700"
-                                        >
-                                            삭제
-                                        </button>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="block mb-2">프로젝트명</label>
-                                    <input
-                                        type="text"
-                                        value={project.projectName}
-                                        onChange={(e) => handleProjectChange(index, 'projectName', e.target.value)}
-                                        className="w-full border rounded p-2"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block mb-2">설명</label>
-                                    <textarea
-                                        value={project.description}
-                                        onChange={(e) => handleProjectChange(index, 'description', e.target.value)}
-                                        className="w-full border rounded p-2"
-                                        rows="3"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block mb-2">시작일</label>
-                                        <input
-                                            type="date"
-                                            value={project.startDate || ''}
-                                            onChange={(e) => handleProjectChange(index, 'startDate', e.target.value)}
-                                            className="w-full border rounded p-2"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block mb-2">종료일</label>
-                                        <input
-                                            type="date"
-                                            value={project.endDate || ''}
-                                            onChange={(e) => handleProjectChange(index, 'endDate', e.target.value)}
-                                            className="w-full border rounded p-2"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block mb-2">스킬</label>
-                                    <SkillAutocomplete
-                                        onSkillSelect={(skill) => handleSkillSelect(index, skill)}
-                                        selectedSkills={project.skills || []}
-                                    />
-                                </div>
-                                
+                    {career.projects.map((project, index) => (
+                        <div key={index} className="border p-4 rounded space-y-4">
+                            <div className="flex justify-between">
+                                <h3 className="font-semibold">프로젝트 {index + 1}</h3>
+                                {index > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeProject(index)}
+                                        className="text-red-500 hover:text-red-700"
+                                    >
+                                        삭제
+                                    </button>
+                                )}
                             </div>
-                        ))}
-                    </div>
 
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                        {isEdit ? '수정 완료' : '경력 등록'}
-                    </button>
-                </form>
-            </div>
-            <Footer />
+                            <div>
+                                <label className="block mb-2">프로젝트명</label>
+                                <input
+                                    type="text"
+                                    value={project.projectName}
+                                    onChange={(e) => handleProjectChange(index, 'projectName', e.target.value)}
+                                    className="w-full border rounded p-2"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block mb-2">설명</label>
+                                <textarea
+                                    value={project.description}
+                                    onChange={(e) => handleProjectChange(index, 'description', e.target.value)}
+                                    className="w-full border rounded p-2"
+                                    rows="3"
+                                    required
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block mb-2">시작일</label>
+                                    <input
+                                        type="date"
+                                        value={project.startDate || ''}
+                                        onChange={(e) => handleProjectChange(index, 'startDate', e.target.value)}
+                                        className="w-full border rounded p-2"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block mb-2">종료일</label>
+                                    <input
+                                        type="date"
+                                        value={project.endDate || ''}
+                                        onChange={(e) => handleProjectChange(index, 'endDate', e.target.value)}
+                                        className="w-full border rounded p-2"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block mb-2">스킬</label>
+                                <SkillAutocomplete
+                                    onSkillSelect={(skill) => handleSkillSelect(index, skill)}
+                                    selectedSkills={project.skills || []}
+                                />
+                            </div>
+                            
+                        </div>
+                    ))}
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                    {isEdit ? '수정 완료' : '경력 등록'}
+                </button>
+            </form>
         </div>
     );
 };

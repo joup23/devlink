@@ -11,6 +11,7 @@ import SignupPage from './pages/SignupPage';
 import ProfileListPage from './pages/ProfileListPage';
 import CareerForm from './pages/CareerForm';
 import ProjectForm from './pages/ProjectForm';
+import Footer from './components/Footer';
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/projects/new" element={<ProjectForm />} />
           <Route path="/projects/:projectId/edit" element={<ProjectForm />} />
         </Routes>
+        <Footer />
       </Router>
     </AuthProvider>
   );

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '../api/axios';
-import Footer from '../components/Footer';
 
 const MyPage = () => {
     const [profiles, setProfiles] = useState([]);
@@ -169,8 +168,8 @@ const MyPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <div className="container mx-auto p-4 flex-grow">
+        <div className="min-h-screen bg-gray-50">
+            <div className="container mx-auto p-4">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold">내 프로필</h1>
                     <Link 
@@ -400,7 +399,7 @@ const MyPage = () => {
                                                 {project.endDate ? new Date(project.endDate).toLocaleDateString() : '현재'}
                                             </p>
                                         )}
-                                        <p className="text-sm text-gray-600">{project.description}</p>
+                                        <p className="text-sm text-gray-600 whitespace-pre-line">{project.description}</p>
                                         <div className="flex flex-wrap gap-2 mt-2">
                                             {project.skills && project.skills.map((skill, i) => (
                                                 <span
@@ -435,7 +434,7 @@ const MyPage = () => {
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h3 className="text-lg font-semibold">{project.title}</h3>
-                                        <p className="text-gray-600">{project.description}</p>
+                                        <p className="text-gray-600 whitespace-pre-line">{project.description}</p>
                                         <div className="flex flex-wrap gap-2 mt-2">
                                             {project.skills && project.skills.map((skill, i) => (
                                                 <span
@@ -467,7 +466,6 @@ const MyPage = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

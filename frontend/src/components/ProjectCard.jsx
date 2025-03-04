@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatYearMonth } from '../utils/dateUtils';
 
 // 간단한 이미지 슬라이더 컴포넌트
 const ImageSlider = ({ images }) => {
@@ -121,7 +122,13 @@ const ProjectCard = ({ project }) => {
             
             <div>
                 <h3 className="text-lg font-semibold">{project.title}</h3>
-                <p className="text-gray-600 line-clamp-2 mt-1">{project.description}</p>
+                {/* 날짜 정보 추가 */}
+                {project.startDate && (
+                    <p className="text-sm text-gray-500 mt-1">
+                        {formatYearMonth(project.startDate)} ~ {project.endDate ? formatYearMonth(project.endDate) : '현재'}
+                    </p>
+                )}
+                <p className="text-gray-600 line-clamp-2 mt-1 whitespace-pre-line">{project.description}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                     {project.skills && project.skills.map((skill, i) => (
                         <span
