@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../api/axios';
 import SkillAutocomplete from '../components/SkillAutocomplete';
+import Footer from '../components/Footer';
 
 const ProfileForm = () => {
     const { profileId } = useParams();
@@ -155,132 +156,169 @@ const ProfileForm = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">
-                {isEdit ? '프로필 수정' : '프로필 등록'}
-            </h1>
-            
-            {/* 이미지 업로드 섹션 */}
-            <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                    프로필 이미지
-                </label>
-                <div className="flex items-center space-x-4">
-                    {(imagePreview || profile.imageUrl) && (
-                        <img
-                            src={imagePreview || profile.imageUrl}
-                            alt="프로필 이미지"
-                            className="w-32 h-32 object-cover rounded-lg"
-                        />
-                    )}
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="border p-2 rounded"
-                    />
-                </div>
-            </div>
-
-            {/* 프로필 기본 정보 입력 필드들 */}
-            <div className="mb-8">
-                <div className="mb-4">
-                    <label className="block mb-2">제목</label>
-                    <input
-                        type="text"
-                        value={profile.title}
-                        onChange={(e) => setProfile({...profile, title: e.target.value})}
-                        className="border p-2 w-full rounded"
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block mb-2">소개</label>
-                    <textarea
-                        value={profile.bio}
-                        onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                        className="border p-2 w-full rounded"
-                        rows="4"
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block mb-2">경력 연차</label>
-                    <input
-                        type="number"
-                        value={profile.careerYears}
-                        onChange={(e) => setProfile({...profile, careerYears: parseInt(e.target.value)})}
-                        className="border p-2 rounded"
-                        min="0"
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block mb-2">GitHub URL</label>
-                    <input
-                        type="url"
-                        value={profile.githubUrl}
-                        onChange={(e) => setProfile({...profile, githubUrl: e.target.value})}
-                        className="border p-2 w-full rounded"
-                        required
-                    />
-                </div>
-            </div>
-
-            {/* 스킬 섹션 */}
-            <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">스킬</h2>
+        <div className="min-h-screen flex flex-col">
+            <div className="container mx-auto p-4 flex-grow">
+                <h1 className="text-2xl font-bold mb-4">
+                    {isEdit ? '프로필 수정' : '프로필 등록'}
+                </h1>
+                
+                {/* 이미지 업로드 섹션 */}
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">
-                        스킬
+                        프로필 이미지
                     </label>
-                    <SkillAutocomplete
-                        onSkillSelect={handleSkillSelect}
-                        selectedSkills={selectedSkills}
-                    />
+                    <div className="flex items-center space-x-4">
+                        {(imagePreview || profile.imageUrl) && (
+                            <img
+                                src={imagePreview || profile.imageUrl}
+                                alt="프로필 이미지"
+                                className="w-32 h-32 object-cover rounded-lg"
+                            />
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="border p-2 rounded"
+                        />
+                    </div>
                 </div>
-            </div>
-            
-            {/* 경력 선택 섹션 */}
-            <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">경력 선택</h2>
-                <div className="grid gap-4">
-                    {myCareers.map((career) => (
-                        <div 
-                            key={career.careerId} 
-                            className={`border rounded-lg p-4 cursor-pointer ${
-                                selectedCareers.includes(career.careerId) 
-                                    ? 'border-blue-500 bg-blue-50' 
-                                    : 'hover:border-gray-400'
-                            }`}
-                            onClick={() => handleCareerSelect(career.careerId)}
-                        >
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h3 className="text-lg font-semibold">{career.companyName}</h3>
-                                    <p className="text-gray-600">
-                                        {career.department} - {career.position}
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        {new Date(career.startDate).toLocaleDateString()} ~ 
-                                        {career.endDate ? new Date(career.endDate).toLocaleDateString() : '현재'}
-                                    </p>
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedCareers.includes(career.careerId)}
-                                    onChange={() => handleCareerSelect(career.careerId)}
-                                    className="h-5 w-5 text-blue-600"
-                                    onClick={e => e.stopPropagation()}
-                                />
-                            </div>
 
-                            {/* 프로젝트 목록 */}
-                            <div className="mt-4 space-y-2">
-                                {career.projects.map((project, index) => (
-                                    <div key={index} className="bg-gray-50 p-3 rounded">
-                                        <h4 className="font-semibold">{project.projectName}</h4>
-                                        <p className="text-sm text-gray-600">{project.description}</p>
+                {/* 프로필 기본 정보 입력 필드들 */}
+                <div className="mb-8">
+                    <div className="mb-4">
+                        <label className="block mb-2">제목</label>
+                        <input
+                            type="text"
+                            value={profile.title}
+                            onChange={(e) => setProfile({...profile, title: e.target.value})}
+                            className="border p-2 w-full rounded"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-2">소개</label>
+                        <textarea
+                            value={profile.bio}
+                            onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                            className="border p-2 w-full rounded"
+                            rows="4"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-2">경력 연차</label>
+                        <input
+                            type="number"
+                            value={profile.careerYears}
+                            onChange={(e) => setProfile({...profile, careerYears: parseInt(e.target.value)})}
+                            className="border p-2 rounded"
+                            min="0"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-2">GitHub URL</label>
+                        <input
+                            type="url"
+                            value={profile.githubUrl}
+                            onChange={(e) => setProfile({...profile, githubUrl: e.target.value})}
+                            className="border p-2 w-full rounded"
+                            required
+                        />
+                    </div>
+                </div>
+
+                {/* 스킬 섹션 */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold mb-4">스킬</h2>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2">
+                            스킬
+                        </label>
+                        <SkillAutocomplete
+                            onSkillSelect={handleSkillSelect}
+                            selectedSkills={selectedSkills}
+                        />
+                    </div>
+                </div>
+                
+                {/* 경력 선택 섹션 */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold mb-4">경력 선택</h2>
+                    <div className="grid gap-4">
+                        {myCareers.map((career) => (
+                            <div 
+                                key={career.careerId} 
+                                className={`border rounded-lg p-4 cursor-pointer ${
+                                    selectedCareers.includes(career.careerId) 
+                                        ? 'border-blue-500 bg-blue-50' 
+                                        : 'hover:border-gray-400'
+                                }`}
+                                onClick={() => handleCareerSelect(career.careerId)}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-lg font-semibold">{career.companyName}</h3>
+                                        <p className="text-gray-600">
+                                            {career.department} - {career.position}
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            {new Date(career.startDate).toLocaleDateString()} ~ 
+                                            {career.endDate ? new Date(career.endDate).toLocaleDateString() : '현재'}
+                                        </p>
+                                    </div>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedCareers.includes(career.careerId)}
+                                        onChange={() => handleCareerSelect(career.careerId)}
+                                        className="h-5 w-5 text-blue-600"
+                                        onClick={e => e.stopPropagation()}
+                                    />
+                                </div>
+
+                                {/* 프로젝트 목록 */}
+                                <div className="mt-4 space-y-2">
+                                    {career.projects.map((project, index) => (
+                                        <div key={index} className="bg-gray-50 p-3 rounded">
+                                            <h4 className="font-semibold">{project.projectName}</h4>
+                                            <p className="text-sm text-gray-600">{project.description}</p>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {project.skills.map((skill, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                                    >
+                                                        {skill.name}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* 프로젝트 선택 섹션 */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold mb-4">프로젝트 선택</h2>
+                    <div className="grid gap-4">
+                        {myProjects.map((project) => (
+                            <div 
+                                key={project.projectId} 
+                                className={`border rounded-lg p-4 cursor-pointer ${
+                                    selectedProjects.includes(project.projectId) 
+                                        ? 'border-blue-500 bg-blue-50' 
+                                        : 'hover:border-gray-400'
+                                }`}
+                                onClick={() => handleProjectSelect(project.projectId)}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-lg font-semibold">{project.title}</h3>
+                                        <p className="text-gray-600">{project.description}</p>
                                         <div className="flex flex-wrap gap-2 mt-2">
                                             {project.skills.map((skill, i) => (
                                                 <span
@@ -292,63 +330,29 @@ const ProfileForm = () => {
                                             ))}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* 프로젝트 선택 섹션 */}
-            <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">프로젝트 선택</h2>
-                <div className="grid gap-4">
-                    {myProjects.map((project) => (
-                        <div 
-                            key={project.projectId} 
-                            className={`border rounded-lg p-4 cursor-pointer ${
-                                selectedProjects.includes(project.projectId) 
-                                    ? 'border-blue-500 bg-blue-50' 
-                                    : 'hover:border-gray-400'
-                            }`}
-                            onClick={() => handleProjectSelect(project.projectId)}
-                        >
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h3 className="text-lg font-semibold">{project.title}</h3>
-                                    <p className="text-gray-600">{project.description}</p>
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {project.skills.map((skill, i) => (
-                                            <span
-                                                key={i}
-                                                className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                                            >
-                                                {skill.name}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedProjects.includes(project.projectId)}
+                                        onChange={() => handleProjectSelect(project.projectId)}
+                                        className="h-5 w-5 text-blue-600"
+                                        onClick={e => e.stopPropagation()}
+                                    />
                                 </div>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedProjects.includes(project.projectId)}
-                                    onChange={() => handleProjectSelect(project.projectId)}
-                                    className="h-5 w-5 text-blue-600"
-                                    onClick={e => e.stopPropagation()}
-                                />
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            {/* 최종 제출 버튼 */}
-            <button 
-                type="submit" 
-                onClick={handleSubmit}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
-            >
-                {isEdit ? '수정 완료' : '프로필 등록'}
-            </button>
+                {/* 최종 제출 버튼 */}
+                <button 
+                    type="submit" 
+                    onClick={handleSubmit}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+                >
+                    {isEdit ? '수정 완료' : '프로필 등록'}
+                </button>
+            </div>
+            <Footer />
         </div>
     );
 };

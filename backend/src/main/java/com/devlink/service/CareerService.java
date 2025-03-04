@@ -66,6 +66,7 @@ public class CareerService {
         career.setPosition(careerDto.getPosition());
         career.setStartDate(careerDto.getStartDate());
         career.setEndDate(careerDto.getEndDate());
+        career.setDescription(careerDto.getDescription());
 
         // 프로젝트 추가
         if (careerDto.getProjects() != null) {
@@ -106,6 +107,7 @@ public class CareerService {
         career.setPosition(careerDto.getPosition());
         career.setStartDate(careerDto.getStartDate());
         career.setEndDate(careerDto.getEndDate());
+        career.setDescription(careerDto.getDescription());
 
         // 기존 프로젝트 삭제
         career.getProjects().clear();
@@ -155,6 +157,7 @@ public class CareerService {
         career.setPosition(careerDto.getPosition());
         career.setStartDate(careerDto.getStartDate());
         career.setEndDate(careerDto.getEndDate());
+        career.setDescription(careerDto.getDescription());
 
         // 프로젝트 추가
         if (careerDto.getProjects() != null) {

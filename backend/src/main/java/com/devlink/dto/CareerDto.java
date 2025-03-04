@@ -16,6 +16,7 @@ public class CareerDto {
     private Long careerId;
     private String companyName;
     private String department;
+    private String description;
     private String position;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -27,6 +28,7 @@ public class CareerDto {
         dto.setCompanyName(career.getCompanyName());
         dto.setDepartment(career.getDepartment());
         dto.setPosition(career.getPosition());
+        dto.setDescription(career.getDescription());
         dto.setStartDate(career.getStartDate());
         dto.setEndDate(career.getEndDate());
         

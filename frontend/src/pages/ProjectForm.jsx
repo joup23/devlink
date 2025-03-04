@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../api/axios';
 import SkillAutocomplete from '../components/SkillAutocomplete';
+import Footer from '../components/Footer';
 
 const ProjectForm = () => {
     const { projectId } = useParams();
@@ -122,128 +123,131 @@ const ProjectForm = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-6">
-                {isEdit ? '프로젝트 수정' : '프로젝트 등록'}
-            </h1>
+        <div className="min-h-screen flex flex-col">
+            <div className="container mx-auto p-4 flex-grow">
+                <h1 className="text-2xl font-bold mb-6">
+                    {isEdit ? '프로젝트 수정' : '프로젝트 등록'}
+                </h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                    <label className="block mb-2">프로젝트명</label>
-                    <input
-                        type="text"
-                        value={project.title}
-                        onChange={(e) => setProject({...project, title: e.target.value})}
-                        className="w-full border rounded p-2"
-                        required
-                    />
-                </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block mb-2">프로젝트명</label>
+                        <input
+                            type="text"
+                            value={project.title}
+                            onChange={(e) => setProject({...project, title: e.target.value})}
+                            className="w-full border rounded p-2"
+                            required
+                        />
+                    </div>
 
-                <div>
-                    <label className="block mb-2">설명</label>
-                    <textarea
-                        value={project.description}
-                        onChange={(e) => setProject({...project, description: e.target.value})}
-                        className="w-full border rounded p-2"
-                        rows="4"
-                        required
-                    />
-                </div>
+                    <div>
+                        <label className="block mb-2">설명</label>
+                        <textarea
+                            value={project.description}
+                            onChange={(e) => setProject({...project, description: e.target.value})}
+                            className="w-full border rounded p-2"
+                            rows="4"
+                            required
+                        />
+                    </div>
 
-                <div>
-                    <label className="block mb-2">링크</label>
-                    <input
-                        type="url"
-                        value={project.link}
-                        onChange={(e) => setProject({...project, link: e.target.value})}
-                        className="w-full border rounded p-2"
-                        placeholder="GitHub 링크나 배포 URL"
-                    />
-                </div>
+                    <div>
+                        <label className="block mb-2">링크</label>
+                        <input
+                            type="url"
+                            value={project.link}
+                            onChange={(e) => setProject({...project, link: e.target.value})}
+                            className="w-full border rounded p-2"
+                            placeholder="GitHub 링크나 배포 URL"
+                        />
+                    </div>
 
-                <div>
-                    <label className="block mb-2">스킬</label>
-                    <SkillAutocomplete
-                        onSkillSelect={(skill) => {
-                            setSelectedSkills(prev => 
-                                prev.some(s => s.name === skill.name)
-                                    ? prev.filter(s => s.name !== skill.name)
-                                    : [...prev, skill]
-                            );
-                        }}
-                        selectedSkills={selectedSkills}
-                    />
-                </div>
+                    <div>
+                        <label className="block mb-2">스킬</label>
+                        <SkillAutocomplete
+                            onSkillSelect={(skill) => {
+                                setSelectedSkills(prev => 
+                                    prev.some(s => s.name === skill.name)
+                                        ? prev.filter(s => s.name !== skill.name)
+                                        : [...prev, skill]
+                                );
+                            }}
+                            selectedSkills={selectedSkills}
+                        />
+                    </div>
 
-                {/* 이미지 업로드 섹션 */}
-                <div>
-                    <label className="block mb-2">프로젝트 이미지</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageChange}
-                        className="w-full border rounded p-2"
-                    />
-                    
-                    {/* 이미지 미리보기 */}
-                    {imagePreview.length > 0 && (
-                        <div className="mt-4 grid grid-cols-3 gap-4">
-                            {imagePreview.map((src, index) => (
-                                <div key={index} className="relative">
-                                    <img 
-                                        src={src} 
-                                        alt={`미리보기 ${index}`} 
-                                        className="w-full h-32 object-cover rounded"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeImage(index)}
-                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            ))}
+                    {/* 이미지 업로드 섹션 */}
+                    <div>
+                        <label className="block mb-2">프로젝트 이미지</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageChange}
+                            className="w-full border rounded p-2"
+                        />
+                        
+                        {/* 이미지 미리보기 */}
+                        {imagePreview.length > 0 && (
+                            <div className="mt-4 grid grid-cols-3 gap-4">
+                                {imagePreview.map((src, index) => (
+                                    <div key={index} className="relative">
+                                        <img 
+                                            src={src} 
+                                            alt={`미리보기 ${index}`} 
+                                            className="w-full h-32 object-cover rounded"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(index)}
+                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 기존 이미지 표시 (수정 시) */}
+                    {isEdit && existingImages.length > 0 && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">기존 이미지</label>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                                {existingImages.map((imageUrl, index) => (
+                                    <div key={`existing-${index}`} className="relative group">
+                                        <img
+                                            src={imageUrl}
+                                            alt={`프로젝트 이미지 ${index + 1}`}
+                                            className="object-cover w-full h-32 rounded border"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeExistingImage(imageUrl)}
+                                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            aria-label="이미지 삭제"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
-                </div>
 
-                {/* 기존 이미지 표시 (수정 시) */}
-                {isEdit && existingImages.length > 0 && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">기존 이미지</label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
-                            {existingImages.map((imageUrl, index) => (
-                                <div key={`existing-${index}`} className="relative group">
-                                    <img
-                                        src={imageUrl}
-                                        alt={`프로젝트 이미지 ${index + 1}`}
-                                        className="object-cover w-full h-32 rounded border"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeExistingImage(imageUrl)}
-                                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        aria-label="이미지 삭제"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                    {isEdit ? '수정 완료' : '프로젝트 등록'}
-                </button>
-            </form>
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                        {isEdit ? '수정 완료' : '프로젝트 등록'}
+                    </button>
+                </form>
+            </div>
+            <Footer />
         </div>
     );
 };

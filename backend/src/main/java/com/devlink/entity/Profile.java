@@ -31,7 +31,7 @@ public class Profile {
     @Column(nullable = false)
     private String title; // 프로필 제목
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String bio; // 사용자 소개
 
     private int careerYears; // 경력 (년)
