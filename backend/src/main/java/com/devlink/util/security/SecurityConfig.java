@@ -2,6 +2,7 @@ package com.devlink.util.security;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,12 @@ import com.devlink.config.JwtAuthenticationFilter;
 public class SecurityConfig {
     
     private final JwtAuthenticationFilter jwtFilter;
+
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
@@ -44,7 +51,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // 프론트엔드 주소
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins)); // 프론트엔드 주소
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
