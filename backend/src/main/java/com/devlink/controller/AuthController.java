@@ -47,6 +47,7 @@ public class AuthController {
         cookie.setSecure(true); // HTTPS만 사용
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60); // 24시간
+        cookie.setAttribute("SameSite", "None"); // 도메인이 다르면 반드시 필요
         
         response.addCookie(cookie);
         
