@@ -1,6 +1,8 @@
 package com.devlink.util.security;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +27,7 @@ public class SecurityConfig {
     private String activeProfile;
 
     @Value("${app.cors.allowed-origins}")
-    private String allowedOrigins;
+    private String allowedOriginsString;
 
     public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
@@ -51,7 +53,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins)); // 프론트엔드 주소
+        
+        // 쉼표로 구분된 문자열을 리스트로 변환
+        List<String> allowedOrigins = Arrays.stream(allowedOriginsString.split(","))
+                                           .map(String::trim)
+                                           .collect(Collectors.toList());
+        
+        configuration.setAllowedOrigins(allowedOrigins); // 프론트엔드 주소들
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
