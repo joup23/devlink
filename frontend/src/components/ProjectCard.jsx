@@ -53,7 +53,7 @@ const ImageSlider = ({ images }) => {
                     className="w-full h-full object-contain cursor-pointer"
                     onClick={() => showFullscreen(currentIndex)}
                     onError={(e) => {
-                        e.target.src = '/default-project.png';
+                        // e.target.src = '/default-project.png';
                     }}
                 />
                 
