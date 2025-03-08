@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    {"source": "/api/:path*", "destination": "https://devlink-backend-318733802239.us-west1.run.app/:path*"},
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/(.*)", "destination": "/frontend/index.html" }
   ]
 }
