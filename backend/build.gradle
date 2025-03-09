@@ -41,6 +41,9 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	
+	// H2 데이터베이스 (테스트용)
+	testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {

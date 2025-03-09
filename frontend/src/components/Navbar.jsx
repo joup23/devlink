@@ -25,9 +25,9 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/login" className="text-gray-600 hover:text-gray-900">로그인</Link>
-                <Link to="/signup" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                {/* <Link to="/signup" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
                   회원가입
-                </Link>
+                </Link> */}
               </>
             )}
           </div>
