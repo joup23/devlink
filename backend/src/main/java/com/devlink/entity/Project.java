@@ -28,7 +28,13 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String link;
+    private String githubUrl;
+
+    private String projectUrl;
+
+    private String startDate;
+
+    private String endDate;
 
     @ManyToMany
     @JoinTable(

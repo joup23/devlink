@@ -11,9 +11,12 @@ const ProjectForm = () => {
     const [project, setProject] = useState({
         title: '',
         description: '',
-        link: '',
         skills: [],
-        imageUrls: []
+        imageUrls: [],
+        startDate: '',
+        endDate: '',
+        projectUrl: '',
+        githubUrl: ''
     });
 
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -36,7 +39,10 @@ const ProjectForm = () => {
             setProject({
                 title: projectData.title,
                 description: projectData.description,
-                link: projectData.link || ''
+                startDate: projectData.startDate || '',
+                endDate: projectData.endDate || '',
+                projectUrl: projectData.projectUrl || '',
+                githubUrl: projectData.githubUrl || '',
             });
             
             setSelectedSkills(projectData.skills || []);
@@ -151,17 +157,6 @@ const ProjectForm = () => {
                 </div>
 
                 <div>
-                    <label className="block mb-2">링크</label>
-                    <input
-                        type="url"
-                        value={project.link}
-                        onChange={(e) => setProject({...project, link: e.target.value})}
-                        className="w-full border rounded p-2"
-                        placeholder="GitHub 링크나 배포 URL"
-                    />
-                </div>
-
-                <div>
                     <label className="block mb-2">스킬</label>
                     <SkillAutocomplete
                         onSkillSelect={(skill) => {
@@ -172,6 +167,50 @@ const ProjectForm = () => {
                             );
                         }}
                         selectedSkills={selectedSkills}
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block mb-2">시작일</label>
+                        <input
+                            type="date"
+                            value={project.startDate}
+                            onChange={(e) => setProject({...project, startDate: e.target.value})}
+                            className="w-full border rounded p-2"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block mb-2">종료일</label>
+                        <input
+                            type="date"
+                            value={project.endDate}
+                            onChange={(e) => setProject({...project, endDate: e.target.value})}
+                            className="w-full border rounded p-2"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block mb-2">프로젝트 URL</label>
+                    <input
+                        type="url"
+                        value={project.projectUrl}
+                        onChange={(e) => setProject({...project, projectUrl: e.target.value})}
+                        className="w-full border rounded p-2"
+                        placeholder="https://example.com"
+                    />
+                </div>
+
+                <div>
+                    <label className="block mb-2">GitHub URL</label>
+                    <input
+                        type="url"
+                        value={project.githubUrl}
+                        onChange={(e) => setProject({...project, githubUrl: e.target.value})}
+                        className="w-full border rounded p-2"
+                        placeholder="https://github.com/username/repository"
                     />
                 </div>
 

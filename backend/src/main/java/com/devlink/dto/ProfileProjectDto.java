@@ -13,8 +13,11 @@ public class ProfileProjectDto {
     private Long projectId;
     private String title;
     private String description;
-    private String link;
     private List<SkillDto> skills;
+    private String githubUrl;
+    private String projectUrl;
+    private String startDate;
+    private String endDate;
     private List<String> imageUrls;
 
     public static ProfileProjectDto from(ProfileProject profileProject) {
@@ -24,10 +27,13 @@ public class ProfileProjectDto {
         dto.setProjectId(project.getProjectId());
         dto.setTitle(project.getTitle());
         dto.setDescription(project.getDescription());
-        dto.setLink(project.getLink());
         dto.setSkills(project.getSkills().stream()
             .map(SkillDto::from)
             .collect(Collectors.toList()));
+        dto.setGithubUrl(project.getGithubUrl());
+        dto.setProjectUrl(project.getProjectUrl());
+        dto.setStartDate(project.getStartDate());
+        dto.setEndDate(project.getEndDate());
         dto.setImageUrls(project.getImageUrls());
         
         return dto;

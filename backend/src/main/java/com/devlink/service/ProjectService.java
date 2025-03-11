@@ -16,6 +16,7 @@ import com.devlink.dto.ProjectDto;
 import com.devlink.util.FileUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class ProjectService {
 
     public ProjectDto getProjectById(Long projectId) {
         Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("프로젝트를 찾을 수 없습니다: " + projectId));
         return ProjectDto.from(project);
     }
 
@@ -71,10 +72,13 @@ public class ProjectService {
         project.setUser(user);
         project.setTitle(projectDto.getTitle());
         project.setDescription(projectDto.getDescription());
-        project.setLink(projectDto.getLink());
+        project.setStartDate(projectDto.getStartDate());
+        project.setEndDate(projectDto.getEndDate());
+        project.setGithubUrl(projectDto.getGithubUrl());
+        project.setProjectUrl(projectDto.getProjectUrl());
 
-        // 스킬 추가
-        if (projectDto.getSkills() != null) {
+        // 스킬 설정
+        if (projectDto.getSkills() != null && !projectDto.getSkills().isEmpty()) {
             projectDto.getSkills().forEach(skillDto -> {
                 Skill skill = skillRepository.findByName(skillDto.getName())
                     .orElseGet(() -> {
@@ -86,9 +90,9 @@ public class ProjectService {
             });
         }
         
-        // 이미지 처리
+        // 이미지 업로드
+        List<String> imageUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
-            List<String> imageUrls = new ArrayList<>();
             for (MultipartFile image : images) {
                 String imageUrl = fileUtil.uploadImage(image, "projects");
                 imageUrls.add(imageUrl);
@@ -96,12 +100,13 @@ public class ProjectService {
             project.setImageUrls(imageUrls);
         }
 
-        return ProjectDto.from(projectRepository.save(project));
+        Project savedProject = projectRepository.save(project);
+        return ProjectDto.from(savedProject);
     }
 
     public List<ProjectDto> getUserProjects(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userEmail));
         return projectRepository.findByUser(user)
             .stream()
             .map(ProjectDto::from)
@@ -136,7 +141,10 @@ public class ProjectService {
             // 프로젝트 수정 로직
             project.setTitle(projectNode.get("title").asText());
             project.setDescription(projectNode.get("description").asText());
-            project.setLink(projectNode.get("link").asText());
+            project.setGithubUrl(projectNode.get("githubUrl").asText());
+            project.setProjectUrl(projectNode.get("projectUrl").asText());
+            project.setStartDate(projectNode.get("startDate").asText());
+            project.setEndDate(projectNode.get("endDate").asText());
 
             // 기존 스킬 제거
             project.getSkills().clear();
@@ -204,8 +212,9 @@ public class ProjectService {
     @Transactional
     public ProjectDto uploadProjectImages(Long projectId, List<MultipartFile> images) {
         Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("프로젝트를 찾을 수 없습니다: " + projectId));
         
+        // 이미지 업로드
         List<String> imageUrls = new ArrayList<>();
         
         for (MultipartFile image : images) {
