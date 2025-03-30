@@ -35,10 +35,10 @@ public class ProjectController {
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<ProjectDto> createProject(
-            @RequestPart("project") ProjectDto projectDto,
+            @RequestPart("project") String projectJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        ProjectDto createdProject = projectService.createProject(userEmail, projectDto, images);
+        ProjectDto createdProject = projectService.createProject(userEmail, projectJson, images);
         return ResponseEntity.ok(createdProject);
     }
 

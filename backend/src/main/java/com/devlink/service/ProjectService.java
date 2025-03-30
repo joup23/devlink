@@ -64,44 +64,51 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectDto createProject(String userEmail, ProjectDto projectDto, List<MultipartFile> images) {
+    public ProjectDto createProject(String userEmail, String projectJson, List<MultipartFile> images) {
         User user = userRepository.findByEmail(userEmail)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Project project = new Project();
-        project.setUser(user);
-        project.setTitle(projectDto.getTitle());
-        project.setDescription(projectDto.getDescription());
-        project.setStartDate(projectDto.getStartDate());
-        project.setEndDate(projectDto.getEndDate());
-        project.setGithubUrl(projectDto.getGithubUrl());
-        project.setProjectUrl(projectDto.getProjectUrl());
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode projectNode = mapper.readTree(projectJson);
 
-        // 스킬 설정
-        if (projectDto.getSkills() != null && !projectDto.getSkills().isEmpty()) {
-            projectDto.getSkills().forEach(skillDto -> {
-                Skill skill = skillRepository.findByName(skillDto.getName())
-                    .orElseGet(() -> {
-                        Skill newSkill = new Skill();
-                        newSkill.setName(skillDto.getName());
-                        return skillRepository.save(newSkill);
-                    });
-                project.getSkills().add(skill);
-            });
-        }
-        
-        // 이미지 업로드
-        List<String> imageUrls = new ArrayList<>();
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile image : images) {
-                String imageUrl = fileUtil.uploadImage(image, "projects");
-                imageUrls.add(imageUrl);
+            Project project = new Project();
+            project.setUser(user);
+            project.setTitle(projectNode.get("title").asText());
+            project.setDescription(projectNode.get("description").asText());
+            project.setStartDate(projectNode.get("startDate").asText());
+            project.setEndDate(projectNode.get("endDate").asText());
+            project.setGithubUrl(projectNode.get("githubUrl").asText());
+            project.setProjectUrl(projectNode.get("projectUrl").asText());
+
+            // 스킬 설정
+            if (projectNode.get("skills") != null && !projectNode.get("skills").isEmpty()) {
+                projectNode.get("skills").forEach(skillDto -> {
+                    Skill skill = skillRepository.findByName(skillDto.get("name").asText())
+                        .orElseGet(() -> {
+                            Skill newSkill = new Skill();
+                            newSkill.setName(skillDto.get("name").asText());
+                            return skillRepository.save(newSkill);
+                        });
+                    project.getSkills().add(skill);
+                });
             }
-            project.setImageUrls(imageUrls);
-        }
+            
+            // 이미지 업로드
+            List<String> imageUrls = new ArrayList<>();
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile image : images) {
+                    String imageUrl = fileUtil.uploadImage(image, "projects");
+                    imageUrls.add(imageUrl);
+                }
+                project.setImageUrls(imageUrls);
+            }
 
-        Project savedProject = projectRepository.save(project);
-        return ProjectDto.from(savedProject);
+            Project savedProject = projectRepository.save(project);
+            return ProjectDto.from(savedProject);
+        } catch (Exception e) {
+            throw new RuntimeException("프로젝트 생성 실패: " + e.getMessage());
+        }
     }
 
     public List<ProjectDto> getUserProjects(String userEmail) {

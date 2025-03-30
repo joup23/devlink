@@ -128,7 +128,7 @@ const ProjectCard = ({ project }) => {
                         {formatYearMonth(project.startDate)} ~ {project.endDate ? formatYearMonth(project.endDate) : '현재'}
                     </p>
                 )}
-                <p className="text-gray-600 line-clamp-2 mt-1 whitespace-pre-line">{project.description}</p>
+                <p className="text-gray-600 mt-1 whitespace-pre-line">{project.description}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                     {project.skills && project.skills.map((skill, i) => (
                         <span
