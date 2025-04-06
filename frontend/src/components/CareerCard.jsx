@@ -25,7 +25,7 @@ const CareerCard = ({ career }) => {
                     <h4 className="font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-200">프로젝트</h4>
                     <div className="space-y-4">
                         {career.projects.map((project, index) => (
-                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                                 <div className="flex justify-between items-start">
                                     <h4 className="font-semibold text-gray-900">{project.projectName}</h4>
                                     {project.startDate && (
