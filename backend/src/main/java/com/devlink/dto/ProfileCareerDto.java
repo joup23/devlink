@@ -7,10 +7,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.devlink.entity.Career;
+import java.io.Serializable;
 
 @Getter
 @Setter
-public class ProfileCareerDto {
+public class ProfileCareerDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long careerId;
     private String companyName;
     private String department;

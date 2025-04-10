@@ -3,12 +3,15 @@ package com.devlink.dto;
 import com.devlink.entity.Project;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class ProjectDto {
+public class ProjectDto implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Long projectId;
     private String title;
     private String description;

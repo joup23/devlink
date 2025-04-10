@@ -1,5 +1,6 @@
 package com.devlink.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,7 +12,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CareerProjectDto {
+public class CareerProjectDto implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Long careerProjectId;
     private String projectName;
     private String description;

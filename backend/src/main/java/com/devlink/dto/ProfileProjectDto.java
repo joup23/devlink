@@ -6,10 +6,13 @@ import lombok.Setter;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.devlink.entity.Project;
+import java.io.Serializable;
 
 @Getter
 @Setter
-public class ProfileProjectDto {
+public class ProfileProjectDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long projectId;
     private String title;
     private String description;

@@ -38,6 +38,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 @Service
 public class ProfileService {
 
@@ -182,14 +185,18 @@ public class ProfileService {
     }
 
     // 특정 프로필 조회
-    public Profile getProfile(Long profileId) {
+    @Transactional(readOnly = true)
+    @Cacheable(value = "profiles", key = "#profileId", condition = "#profileId == 12")
+    public ProfileDto getProfile(Long profileId) {
+        System.out.println("DB에서 프로필 조회 시도: ID " + profileId);
         Profile profile = profileRepository.findByIdWithUser(profileId)
-            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("프로필을 찾을 수 없습니다. ID: " + profileId));
         
-        return profile;
+        return ProfileDto.from(profile);
     }
 
     @Transactional
+    @CacheEvict(value = "profiles", key = "#profileId", condition = "#profileId == 12")
     public Profile updateProfile(Long profileId, String userEmail, MultipartFile imageFile, 
                                String profileJson, String careerIds, String projectIds) {
         try {

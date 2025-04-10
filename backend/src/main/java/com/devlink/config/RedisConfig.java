@@ -11,7 +11,15 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import com.devlink.dto.ProfileDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
@@ -69,9 +77,20 @@ public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule()); // LocalDate, LocalDateTime 지원
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // 타입 명시
+        Jackson2JsonRedisSerializer<ProfileDto> serializer = new Jackson2JsonRedisSerializer<>(ProfileDto.class);
+        serializer.setObjectMapper(objectMapper);
+
+
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1))
-                .disableCachingNullValues();
+                .serializeValuesWith(
+                    RedisSerializationContext.SerializationPair.fromSerializer(serializer)
+                )
+                .entryTtl(Duration.ofHours(1));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)

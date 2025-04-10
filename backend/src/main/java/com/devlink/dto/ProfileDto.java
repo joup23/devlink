@@ -8,11 +8,14 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Getter
 @Setter
-public class ProfileDto {
+public class ProfileDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long profileId;
     private String title;
     private String bio;

@@ -55,11 +55,11 @@ public class ProfileController {
     // 특정 프로필 조회
     @GetMapping("/{profileId}")
     public ResponseEntity<ProfileDto> getProfile(@PathVariable Long profileId) {
-        Profile profile = profileService.getProfile(profileId);
+        ProfileDto profileDto = profileService.getProfile(profileId);
 
         profileService.incrementViewCount(profileId);
         
-        return ResponseEntity.ok(ProfileDto.from(profile));
+        return ResponseEntity.ok(profileDto);
     }
 
     // 프로필 수정
