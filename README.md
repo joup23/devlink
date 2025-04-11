@@ -42,6 +42,7 @@ DevLink는 개발자들이 자신의 포트폴리오를 쉽게 만들고 공유�
 - Supabase (이미지 스토리지)
 - Axios
 
+### 서비스 구상도
 ![Architecture Diagram](docs/devLink_architecture-diagram.png)
 
 ## 시작하기
