@@ -89,8 +89,8 @@ public class RedisConfig {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeValuesWith(
                     RedisSerializationContext.SerializationPair.fromSerializer(serializer)
-                )
-                .entryTtl(Duration.ofHours(1));
+                );
+                //.entryTtl(Duration.ofHours(1));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
