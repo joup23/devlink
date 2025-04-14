@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,11 +52,13 @@ public class ProfileService {
     private final LikeRepository likeRepository;
     private final ProjectRepository projectRepository;
     private final CareerRepository careerRepository;
+    private final RedisTemplate<String, Boolean> redisTemplate;
 
 
     public ProfileService(ProfileRepository profileRepository, UserRepository userRepository,
                          SkillRepository skillRepository, FileUtil fileUtil, LikeRepository likeRepository,
-                         ProjectRepository projectRepository, CareerRepository careerRepository) {
+                         ProjectRepository projectRepository, CareerRepository careerRepository,
+                         RedisTemplate<String, Boolean> redisTemplate) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.skillRepository = skillRepository;
@@ -63,6 +66,7 @@ public class ProfileService {
         this.likeRepository = likeRepository;
         this.projectRepository = projectRepository;
         this.careerRepository = careerRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     // 프로필 작성
@@ -324,6 +328,10 @@ public class ProfileService {
         );
     }
 
+    private String getLikeKey(Long profileId) {
+        return "like:" + profileId + ":*";
+    }
+
     @Transactional
     public void deleteProfile(Long profileId, String username) {
         Profile profile = profileRepository.findById(profileId)
@@ -336,6 +344,12 @@ public class ProfileService {
         // 연관된 데이터 먼저 삭제
         profile.getSkills().clear();  // 스킬 관계 제거
         likeRepository.deleteByProfile(profile); // 좋아요 관계 제거
+        redisTemplate.delete(getLikeKey(profileId)); // 해당 프로필의 모든 좋아요 데이터 삭제
+        
+        // ProfileCareer 관계만 삭제
+        profile.getProfileCareers().clear();
+        
+        profile.getProfileProjects().clear(); // 프로젝트 관계 제거
         
         profileRepository.delete(profile);
     }

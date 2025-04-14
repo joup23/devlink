@@ -310,6 +310,12 @@ const MyPage = () => {
                                         >
                                             수정
                                         </Link>
+                                        <button
+                                            onClick={() => handleDeleteProfile(profile.profileId)}
+                                            className="text-red-500 hover:text-red-700 font-medium"
+                                        >
+                                            삭제
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="mt-3">
