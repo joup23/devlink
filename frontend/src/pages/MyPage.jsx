@@ -283,45 +283,45 @@ const MyPage = () => {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {profiles.map((profile) => (
                             <div key={profile.profileId} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex items-center space-x-3">
-                                        {profile.imageUrl && (
-                                            <img
-                                                src={profile.imageUrl}
-                                                alt="프로필 이미지"
-                                                className="w-16 h-16 rounded-full object-cover rounded-lg"
-                                            />
-                                        )}
-                                        <div>
-                                            <h3 className="font-semibold text-lg">{profile.title}</h3>
-                                            <p className="text-gray-600 text-sm">경력 {profile.careerYears}년</p>
-                                        </div>
-                                    </div>
+                                <div className="flex justify-between items-start mb-3">
+                                    <h3 className="font-semibold text-lg">{profile.title}</h3>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => navigate(`/profile/${profile.profileId}`)}
-                                            className="text-blue-500 hover:text-blue-700"
+                                            className="text-blue-500 hover:text-blue-700 text-sm"
                                         >
                                             보기
                                         </button>
                                         <Link
                                             to={`/profiles/${profile.profileId}/edit`}
-                                            className="text-blue-500 hover:text-blue-700"
+                                            className="text-blue-500 hover:text-blue-700 text-sm"
                                         >
                                             수정
                                         </Link>
                                         <button
                                             onClick={() => handleDeleteProfile(profile.profileId)}
-                                            className="text-red-500 hover:text-red-700 font-medium"
+                                            className="text-red-500 hover:text-red-700 text-sm font-medium"
                                         >
                                             삭제
                                         </button>
                                     </div>
                                 </div>
-                                <div className="mt-3">
+                                <div className="flex items-center space-x-3 mb-3">
+                                    {profile.imageUrl && (
+                                        <img
+                                            src={profile.imageUrl}
+                                            alt="프로필 이미지"
+                                            className="w-16 h-16 rounded-full object-cover"
+                                        />
+                                    )}
+                                    <div>
+                                        <p className="text-gray-600 text-sm">경력 {profile.careerYears}년</p>
+                                    </div>
+                                </div>
+                                <div className="mb-3">
                                     <p className="text-gray-600 text-sm line-clamp-2">{profile.bio}</p>
                                 </div>
-                                <div className="mt-3 flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2 mb-3">
                                     {profile.skills.slice(0, 5).map((skill, index) => (
                                         <span
                                             key={index}
@@ -336,7 +336,7 @@ const MyPage = () => {
                                         </span>
                                     )}
                                 </div>
-                                <div className="mt-3 text-sm text-gray-500">
+                                <div className="text-sm text-gray-500">
                                     <div>조회수: {profile.viewCount}</div>
                                     <div>좋아요: {profile.likeCount}</div>
                                 </div>
@@ -359,7 +359,7 @@ const MyPage = () => {
 
                     <div className="space-y-4">
                         {careers.map((career) => (
-                            <div key={career.careerId} className="border rounded-lg p-4">
+                            <div key={career.careerId} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h3 className="text-xl font-bold">{career.companyName}</h3>
@@ -397,7 +397,7 @@ const MyPage = () => {
                                     </p>
                                 </div>
                                 {career.projects && career.projects.map((project, index) => (
-                                    <div key={index} className="bg-gray-50 p-3 rounded mt-2">
+                                    <div key={index} className="bg-gray-50 p-3 rounded mt-2 hover:shadow-md transition-shadow">
                                         <h4 className="font-semibold">{project.projectName}</h4>
                                         {project.startDate && (
                                             <p className="text-xs text-gray-500">
@@ -436,7 +436,7 @@ const MyPage = () => {
                     </div>
                     <div className="grid gap-4">
                         {projects.map((project) => (
-                            <div key={project.projectId} className="border rounded-lg p-4">
+                            <div key={project.projectId} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h3 className="text-lg font-semibold">{project.title}</h3>
