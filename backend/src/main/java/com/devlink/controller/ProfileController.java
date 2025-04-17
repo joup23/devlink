@@ -57,7 +57,7 @@ public class ProfileController {
     public ResponseEntity<ProfileDto> getProfile(@PathVariable Long profileId) {
         ProfileDto profileDto = profileService.getProfile(profileId);
 
-        profileService.incrementViewCount(profileId);
+        //profileService.incrementViewCount(profileId);
         
         return ResponseEntity.ok(profileDto);
     }

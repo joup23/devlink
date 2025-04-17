@@ -20,28 +20,37 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                // 프로필과 좋아요 상태를 동시에 가져오기
-                const [profileRes, likeCountRes, isLikedRes] = await Promise.all([
-                    apiClient.get(`/profiles/${id}`),
-                    apiClient.get(`/profiles/${id}/likes`),
-                    isLoggedIn ? apiClient.get(`/profiles/${id}/isLiked`) : Promise.resolve({ data: false })
-                ]);
-                
-                // 조회수 증가 API 비동기 호출
-                //await apiClient.post(`/profiles/${id}/view`);
-                
-                setProfile(profileRes.data);
-                setProjects(profileRes.data.projects || []);
-                setCareers(profileRes.data.careers || []);
-                setLikeCount(likeCountRes.data);
-                setIsLiked(isLikedRes.data);
-                setLoading(false);
+                // id가 12인 경우 프로필 정보만 가져오기 (좋아요 상태와 카운트가 이미 포함되어 있음)
+                if (id === "12") {
+                    const profileRes = await apiClient.get(`/profiles/${id}`);
+                    setProfile(profileRes.data);
+                    setProjects(profileRes.data.projects || []);
+                    setCareers(profileRes.data.careers || []);
+                    setLikeCount(profileRes.data.likeCount);
+                    setIsLiked(profileRes.data.isLiked);
+                    setLoading(false);
+                } else {
+                    // id가 12가 아닌 경우 기존 로직 유지
+                    const [profileRes, likeCountRes, isLikedRes] = await Promise.all([
+                        apiClient.get(`/profiles/${id}`),
+                        apiClient.get(`/profiles/${id}/likes`),
+                        isLoggedIn ? apiClient.get(`/profiles/${id}/isLiked`) : Promise.resolve({ data: false })
+                    ]);
+                    
+                    setProfile(profileRes.data);
+                    setProjects(profileRes.data.projects || []);
+                    setCareers(profileRes.data.careers || []);
+                    setLikeCount(likeCountRes.data);
+                    setIsLiked(isLikedRes.data);
+                    setLoading(false);
+                }
+                await apiClient.post(`/profiles/${id}/view`);
             } catch (error) {
                 console.error('프로필 로딩 실패:', error);
                 setLoading(false);
             }
+            
         };
-        
         fetchProfile();
     }, [id, isLoggedIn]);
 
@@ -109,6 +118,8 @@ const ProfilePage = () => {
                                         
                                         {/* 좋아요 버튼 */}
                                         <div className="mt-4 md:mt-0 flex items-center gap-4">
+                                        {id !== "12" && (
+                                            <>
                                             <button
                                                 onClick={handleLike}
                                                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors font-semibold ${
@@ -129,6 +140,8 @@ const ProfilePage = () => {
                                                 </svg>
                                                 <span>{profile.viewCount}</span>
                                             </div>
+                                            </>
+                                        )}
                                         </div>
                                     </div>
                                     
