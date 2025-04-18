@@ -1,0 +1,152 @@
+/* src/print.css */
+
+@media print {
+  /* 기본 설정 */
+  body {
+    font-family: 'Malgun Gothic', sans-serif; /* 인쇄에 적합한 기본 폰트 */
+    font-size: 10pt; /* 기본 폰트 크기 조정 */
+    line-height: 1.4;
+    background-color: white; /* 배경 흰색 */
+    color: black; /* 기본 텍스트 검정 */
+    margin: 1cm; /* 용지 여백 설정 */
+  }
+
+  /* 페이지 나누기 최적화 */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid; /* 제목 다음에 바로 페이지 넘어가지 않도록 */
+  }
+  p, blockquote, ul, ol, dl {
+    page-break-inside: avoid; /* 문단, 목록 등 내용 중간에 페이지 넘어가지 않도록 */
+  }
+  img {
+    max-width: 100% !important; /* 이미지가 페이지 너비 초과하지 않도록 */
+    page-break-inside: avoid;
+  }
+  a {
+    color: black;
+    text-decoration: none; /* 링크 밑줄 제거 */
+  }
+  /* 링크 URL 표시 (선택 사항) */
+  a[href^="http"]:after {
+    /* content: " (" attr(href) ")"; */ /* 링크 옆에 URL 표시하려면 주석 해제 */
+    font-size: 9pt;
+    color: #555;
+  }
+
+
+  /* --- 애플리케이션 전반적인 요소 숨기기 --- */
+  /* 헤더/네비게이션 바 (App.jsx 등 상위 컴포넌트에 있을 것으로 가정) */
+  /* 실제 네비게이션 바의 클래스나 ID로 지정해야 합니다. 예시: */
+  /* header, nav, #main-nav, .navbar { display: none !important; } */
+
+  /* --- ProfilePage 특정 요소 숨기기 및 조정 --- */
+
+  .navbar, 
+  nav,
+  header {
+    display: none !important;
+  }
+  /* 상단 그라데이션 배너 숨기기 */
+  .h-48.bg-gradient-to-r {
+    display: none !important;
+  }
+
+  /* 프로필 헤더 섹션 여백 조정 */
+  .container.-mt-24 {
+    margin-top: 0 !important;
+  }
+  .bg-white.rounded-xl.shadow-xl.p-6.mb-8 {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  /* 프로필 이미지 크기 및 테두리 조정 */
+  .w-32.h-32.rounded-full.border-4 {
+    width: 80px !important;
+    height: 80px !important;
+    border-width: 1px !important;
+    border-color: #ccc !important;
+    box-shadow: none !important;
+  }
+
+  /* 좋아요 버튼 및 조회수 숨기기 */
+  .mt-4.md\:mt-0.flex.items-center.gap-4 button,
+  .mt-4.md\:mt-0.flex.items-center.gap-4 .text-gray-500 {
+    display: none !important;
+  }
+
+  /* 스킬 태그 스타일 조정 */
+  .bg-indigo-100.text-indigo-800 {
+    background-color: #eee !important;
+    color: black !important;
+    border: 1px solid #ccc;
+    padding: 2px 6px;
+    font-size: 9pt;
+  }
+
+  /* 메인 콘텐츠 레이아웃 단일 컬럼으로 변경 */
+  .grid.grid-cols-1.lg\:grid-cols-12 {
+    display: block !important; /* 그리드 해제 */
+  }
+  .lg\:col-span-4,
+  .lg\:col-span-8 {
+    width: 100% !important; /* 전체 너비 사용 */
+    display: block !important; /* 블록 요소로 변경 */
+    margin-bottom: 15px; /* 섹션 간 여백 */
+    page-break-before: auto; /* 필요시 페이지 나누기 */
+  }
+  /* 우측 콘텐츠 섹션 시작 시 페이지 넘김 (선택 사항) */
+  .lg\:col-span-8 {
+     /* page-break-before: always; */
+  }
+
+
+  /* 카드 스타일 조정 (개인 정보, 자기소개, GitHub, 경력, 프로젝트) */
+  .bg-white.rounded-xl.shadow-md.p-6 {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  .bg-white.rounded-xl.shadow-md.p-6 h2 {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    font-size: 12pt;
+  }
+  .bg-white.rounded-xl.shadow-md.p-6 svg {
+    display: none; /* 아이콘 숨기기 (선택 사항) */
+  }
+
+  /* 개인 정보 항목 간격 조정 */
+  .space-y-4 > * + * {
+    margin-top: 0.5rem !important;
+  }
+  .space-y-4 .flex.items-center div {
+    margin-left: 0 !important; /* 아이콘 숨겼을 경우 왼쪽 여백 제거 */
+  }
+  .space-y-4 .text-gray-500 {
+     color: #666 !important; /* 인쇄 시 라벨 색상 지정 */
+     font-size: 9pt !important; /* 인쇄 시 라벨 크기 조정 */
+  }
+  .space-y-4 .font-semibold {
+    font-weight: normal; /* 너무 굵지 않게 */
+  }
+
+  /* GitHub 섹션 링크 단순화 */
+  .bg-white.rounded-xl.shadow-md.p-6 a {
+     font-weight: normal;
+     color: black;
+  }
+
+  /* 경력/프로젝트 카드 내부 스타일 조정 */
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+  /* ProjectCard, CareerCard 내부의 불필요한 UI (버튼, 링크 등) 숨기기 */
+  /* 예시: .project-card-actions, .career-card-link { display: none !important; } */
+  /* 실제 카드 컴포넌트 구조에 맞게 선택자 지정 필요 */
+
+}

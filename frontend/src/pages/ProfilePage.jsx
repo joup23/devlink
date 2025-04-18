@@ -26,8 +26,7 @@ const ProfilePage = () => {
                     setProfile(profileRes.data);
                     setProjects(profileRes.data.projects || []);
                     setCareers(profileRes.data.careers || []);
-                    setLikeCount(profileRes.data.likeCount);
-                    setIsLiked(profileRes.data.isLiked);
+                    // ID 12일 때는 좋아요/조회수 관련 상태를 설정하지 않음 (숨길 예정)
                     setLoading(false);
                 } else {
                     // id가 12가 아닌 경우 기존 로직 유지
@@ -44,6 +43,7 @@ const ProfilePage = () => {
                     setIsLiked(isLikedRes.data);
                     setLoading(false);
                 }
+                // 조회수 증가는 모든 경우에 시도 (에러 핸들링은 되어 있음)
                 await apiClient.post(`/profiles/${id}/view`);
             } catch (error) {
                 console.error('프로필 로딩 실패:', error);
@@ -70,6 +70,11 @@ const ProfilePage = () => {
         }
     };
 
+    // PDF 저장을 위한 함수
+    const handlePrint = () => {
+        window.print();
+    };
+
     if (loading) return (
         <div className="flex justify-center items-center min-h-screen">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
@@ -81,7 +86,7 @@ const ProfilePage = () => {
             <h2 className="text-2xl font-bold text-gray-700">프로필을 찾을 수 없습니다</h2>
             <button 
                 onClick={() => navigate(-1)} 
-                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
+                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium print:hidden" // 인쇄 시 숨김
             >
                 돌아가기
             </button>
@@ -116,32 +121,32 @@ const ProfilePage = () => {
                                             <p className="text-gray-600 mt-1 font-medium">{profile.name} · 경력 {profile.careerYears}년</p>
                                         </div>
                                         
-                                        {/* 좋아요 버튼 */}
+                                        {/* 좋아요 버튼 및 조회수 (id가 12가 아닐 때만 표시) */}
                                         <div className="mt-4 md:mt-0 flex items-center gap-4">
-                                        {id !== "12" && (
-                                            <>
-                                            <button
-                                                onClick={handleLike}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors font-semibold ${
-                                                    isLiked 
-                                                        ? 'bg-pink-500 text-white hover:bg-pink-600' 
-                                                        : 'bg-gray-100 hover:bg-gray-200'
-                                                }`}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={isLiked ? "0" : "1.5"}>
-                                                    <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                                                </svg>
-                                                <span>{likeCount}</span>
-                                            </button>
-                                            <div className="text-gray-500 flex items-center gap-1 font-medium">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                                                </svg>
-                                                <span>{profile.viewCount}</span>
-                                            </div>
-                                            </>
-                                        )}
+                                            {id !== "12" && (
+                                                <>
+                                                    <button
+                                                        onClick={handleLike}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors font-semibold ${
+                                                            isLiked 
+                                                                ? 'bg-pink-500 text-white hover:bg-pink-600' 
+                                                                : 'bg-gray-100 hover:bg-gray-200'
+                                                        }`}
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={isLiked ? "0" : "1.5"}>
+                                                            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                                                        </svg>
+                                                        <span>{likeCount}</span>
+                                                    </button>
+                                                    <div className="text-gray-500 flex items-center gap-1 font-medium">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                        <span>{profile.viewCount}</span>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                     
@@ -166,6 +171,13 @@ const ProfilePage = () => {
 
                 {/* 메인 콘텐츠 섹션 */}
                 <div className="container mx-auto px-4 py-8 mb-20">
+                    {/* PDF 저장 버튼 */}
+                    <button
+                        onClick={handlePrint}
+                        className="fixed bottom-4 right-4 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-indigo-700 print:hidden z-50" // 인쇄 시 숨김 및 다른 요소 위에 표시
+                    >
+                        PDF 저장
+                    </button>
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         {/* 왼쪽 사이드바 - 개인 정보 */}
                         <div className="lg:col-span-4">
