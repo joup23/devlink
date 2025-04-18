@@ -16,7 +16,7 @@
   - JPA를 활용한 데이터베이스 설계 및 구현
   - Redis를 활용한 캐싱 시스템 구현 경험
 - **클라우드 서비스 활용**
-  - GCP VM에 Docker로 백엔드 서버 배포
+  - GCP의 Cloud Run을 이용하여 Docker 기반 백엔드 서버를 서버리스 환경에 배포
   - Vercel을 통한 프론트엔드 배포
   - Supabase Storage를 활용한 이미지 저장소 구현
 - **React와 상태관리**
@@ -124,10 +124,11 @@ npm run dev
 ## 🌐 배포
 
 ### 백엔드
-- **Google Cloud Platform (GCP) VM 인스턴스**
-  - Ubuntu 22.04 LTS
-  - Docker 컨테이너화
-  - Spring Boot 내장 톰캣 사용
+- **Google Cloud Platform (Cloud Run)**
+  - Docker 이미지 기반 서버리스 환경
+  - Spring Boot 내장 톰캣 실행
+  - Artifact Registry를 통한 이미지 관리 및 자동 배포
+  - `gcloud run deploy` 명령어로 배포
 
 ### 프론트엔드
 - **Vercel**
@@ -139,16 +140,17 @@ npm run dev
 
 ## 📦 배포 프로세스
 
-### 백엔드 배포 (GCP VM)
-1. VM 인스턴스 생성 및 설정
-2. Docker 설치 및 설정
-3. 애플리케이션 배포 및 실행
+### 백엔드 배포 (Cloud Run)
+1. 로컬에서 Docker 이미지 생성 (`Dockerfile`)
+2. Google Artifact Registry에 이미지 업로드
+3. `gcloud run deploy` 명령어로 Cloud Run에 배포
+   - 환경 변수 (`SPRING_PROFILES_ACTIVE=production`) 설정 포함
+   - 인증 없이 접근 가능하도록 설정
 
 ### 프론트엔드 배포 (Vercel)
-1. GitHub 저장소 연동
-2. 환경 변수 설정
-3. 자동 배포 설정
-4. 도메인 설정
+1. GitHub 저장소 연결
+2. `vite.config.ts`를 통한 환경 경로 설정
+3. 자동 빌드 및 배포
 
 ---
 
